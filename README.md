@@ -5,9 +5,9 @@ Team Names: Raj Mamidala, Kenny Liang, Aditya Raj
 ## Team Work distribution
 | Member | Model |
 | --- | --- |
-Raj Mamidala RNN
-Kenny Liang CNN
-Aditya Raj CNN-RNN Hybrid
+| Raj Mamidala | RNN |
+| Kenny Liang | CNN |
+| Aditya Raj | CNN-RNN Hybrid |
 
 ### Responsibilities that need to
 - **Dataset preparation:** Load and balance the data, then split it into train/val/test sets
