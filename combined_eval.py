@@ -32,6 +32,21 @@ def compute_metrics(y_true, y_pred, labels):
     }
 
 
+def bootstrap_ci(y_true, y_pred, n_boot=1000, alpha=0.05, seed=0):
+    """Percentile bootstrap CI for accuracy and macro-F1 (test rows resampled with replacement)."""
+    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
+    rng = np.random.default_rng(seed)
+    accs, f1s = [], []
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(y_true), len(y_true))
+        accs.append(accuracy_score(y_true[idx], y_pred[idx]))
+        f1s.append(f1_score(y_true[idx], y_pred[idx], average="macro", zero_division=0))
+    lo, hi = 100 * alpha / 2, 100 * (1 - alpha / 2)
+    return {"accuracy": [float(np.percentile(accs, lo)), float(np.percentile(accs, hi))],
+            "macro_f1": [float(np.percentile(f1s, lo)), float(np.percentile(f1s, hi))],
+            "n_boot": n_boot, "level": 1 - alpha}
+
+
 def plot_confusion(cm, labels, path, title):
     """Row-normalised confusion matrix; each cell shows its count and row share."""
     cm = np.asarray(cm)

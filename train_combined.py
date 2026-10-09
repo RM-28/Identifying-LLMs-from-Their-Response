@@ -23,7 +23,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedGroupKFold
 from torch.utils.data import DataLoader, Dataset
 
-from combined_eval import compute_metrics, plot_confusion
+from combined_eval import bootstrap_ci, compute_metrics, plot_confusion
 from models.combined_models import MODELS, SoftVoteEnsemble, load_member
 
 PAD, UNK, SEP = "<pad>", "<unk>", "<sep>"
@@ -222,7 +222,9 @@ def save_checkpoint(path, name, model, kwargs, vocab, labels, args):
 def main():
     args = parse_args()
     set_seed(args.seed)
+    # deterministic cuDNN kernels: the same seed reproduces the same numbers
     torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
     device = torch.device(args.device)
     run_name = f"combined_{args.model}_{args.input_mode}"
 
@@ -298,6 +300,7 @@ def main():
 
     y_true, y_pred = predict(forward, loaders["test"], device)
     metrics = compute_metrics(y_true, y_pred, labels)
+    metrics["ci95"] = bootstrap_ci(y_true, y_pred, seed=args.seed)
     y_vtrue, y_vpred = predict(forward, loaders["val"], device)
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -313,6 +316,10 @@ def main():
         "val_macro_f1": float(f1_score(y_vtrue, y_vpred, average="macro")),
         "test": metrics, "training": train_logs, "train_time_sec": round(time.time() - t_start, 1),
         "confusion_png": png,
+        # per-row test predictions, so models run with the same seed (same test
+        # set) can be compared pairwise by aggregate_results.py
+        "test_predictions": {"row_id": df.index[df["split"] == "test"].tolist(),
+                             "y_true": y_true.tolist(), "y_pred": y_pred.tolist()},
     }
     if member_info:
         result["members"] = member_info
@@ -320,7 +327,9 @@ def main():
     with open(out, "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"\nTEST  acc {metrics['accuracy']:.4f}  macro-F1 {metrics['macro_f1']:.4f}")
+    ci = metrics["ci95"]
+    print(f"\nTEST  acc {metrics['accuracy']:.4f} [{ci['accuracy'][0]:.3f}, {ci['accuracy'][1]:.3f}]  "
+          f"macro-F1 {metrics['macro_f1']:.4f} [{ci['macro_f1'][0]:.3f}, {ci['macro_f1'][1]:.3f}]")
     for name, m in metrics["per_class"].items():
         print(f"  {name:15s} P {m['precision']:.3f}  R {m['recall']:.3f}  F1 {m['f1']:.3f}  n={m['support']}")
     print(f"saved {out} and {png}")
