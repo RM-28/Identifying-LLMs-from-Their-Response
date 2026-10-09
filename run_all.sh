@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Run every combined model x input mode. Extra arguments are passed to each run,
+# e.g.  ./run_all.sh --epochs 3 --subset 200      (quick check)
+#       ./run_all.sh --cnn_ckpt checkpoints/cnn.pt --rnn_ckpt checkpoints/rnn.pt
+# --cnn_ckpt/--rnn_ckpt only affect the ensemble runs.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+PYTHON="${PYTHON:-python}"
+mkdir -p results/logs
+
+ENSEMBLE_ARGS=()
+COMMON_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --cnn_ckpt|--rnn_ckpt) ENSEMBLE_ARGS+=("$1" "$2"); shift 2 ;;
+    *) COMMON_ARGS+=("$1"); shift ;;
+  esac
+done
+
+for model in cnnlstm fusion ensemble; do
+  for mode in output input both; do
+    extra=()
+    [[ "$model" == "ensemble" ]] && extra=("${ENSEMBLE_ARGS[@]+"${ENSEMBLE_ARGS[@]}"}")
+    echo "=== $model / $mode ==="
+    "$PYTHON" train_combined.py --model "$model" --input_mode "$mode" \
+      "${COMMON_ARGS[@]+"${COMMON_ARGS[@]}"}" "${extra[@]+"${extra[@]}"}" \
+      2>&1 | tee "results/logs/combined_${model}_${mode}.log"
+  done
+done
+
+# summary table
+"$PYTHON" - <<'EOF'
+import glob, json
+print(f"\n{'model':10s} {'input':7s} {'acc':>7s} {'macroF1':>8s}")
+for path in sorted(glob.glob("results/combined_*.json")):
+    r = json.load(open(path))
+    print(f"{r['model']:10s} {r['input_mode']:7s} {r['test']['accuracy']:7.4f} {r['test']['macro_f1']:8.4f}")
+EOF
