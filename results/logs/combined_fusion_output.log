@@ -1,0 +1,30 @@
+combined_fusion_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         336            343     362         337
+train       1626           1628    1591        1613
+val          346            337     355         358
+
+vocab size: 27072
+[combined_fusion_output] epoch  1  loss 1.4015  val_acc 0.5143  val_macroF1 0.4850  (10.3s)
+[combined_fusion_output] epoch  2  loss 1.0744  val_acc 0.5924  val_macroF1 0.5839  (9.0s)
+[combined_fusion_output] epoch  3  loss 0.9582  val_acc 0.6297  val_macroF1 0.6297  (8.9s)
+[combined_fusion_output] epoch  4  loss 0.9028  val_acc 0.6476  val_macroF1 0.6532  (8.7s)
+[combined_fusion_output] epoch  5  loss 0.8592  val_acc 0.6490  val_macroF1 0.6444  (8.7s)
+[combined_fusion_output] epoch  6  loss 0.8085  val_acc 0.6605  val_macroF1 0.6500  (9.3s)
+[combined_fusion_output] epoch  7  loss 0.7636  val_acc 0.6698  val_macroF1 0.6753  (10.0s)
+[combined_fusion_output] epoch  8  loss 0.7362  val_acc 0.6547  val_macroF1 0.6322  (8.5s)
+[combined_fusion_output] epoch  9  loss 0.6881  val_acc 0.6519  val_macroF1 0.6462  (8.5s)
+[combined_fusion_output] epoch 10  loss 0.6553  val_acc 0.6755  val_macroF1 0.6828  (8.2s)
+[combined_fusion_output] epoch 11  loss 0.6130  val_acc 0.7042  val_macroF1 0.7057  (8.6s)
+[combined_fusion_output] epoch 12  loss 0.5804  val_acc 0.6891  val_macroF1 0.6875  (8.2s)
+[combined_fusion_output] epoch 13  loss 0.5464  val_acc 0.6999  val_macroF1 0.6994  (8.9s)
+[combined_fusion_output] epoch 14  loss 0.5222  val_acc 0.6877  val_macroF1 0.6931  (8.5s)
+[combined_fusion_output] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.6945  macro-F1 0.6946
+  claude-v1       P 0.886  R 0.857  F1 0.871  n=336
+  gpt-3.5-turbo   P 0.591  R 0.539  F1 0.564  n=343
+  palm-2          P 0.717  R 0.740  F1 0.728  n=362
+  vicuna-13b      P 0.590  R 0.641  F1 0.615  n=337
+saved results\combined_fusion_output.json and results\combined_fusion_output_confusion.png

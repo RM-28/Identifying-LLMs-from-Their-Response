@@ -1,0 +1,183 @@
+{
+  "model": "cnnlstm",
+  "input_mode": "both",
+  "args": {
+    "model": "cnnlstm",
+    "input_mode": "both",
+    "epochs": 20,
+    "lr": 0.001,
+    "batch_size": 64,
+    "max_len": 512,
+    "seed": 42,
+    "weight_decay": 1e-05,
+    "patience": 3,
+    "dropout": 0.5,
+    "emb_dim": 128,
+    "num_filters": 64,
+    "hidden_dim": 128,
+    "min_freq": 2,
+    "max_vocab": 50000,
+    "split": "stratified",
+    "cnn_ckpt": null,
+    "rnn_ckpt": null,
+    "subset": 0,
+    "data_dir": "data/preprocessed",
+    "out_dir": "results",
+    "ckpt_dir": "checkpoints",
+    "device": "cuda"
+  },
+  "labels": [
+    "claude-v1",
+    "gpt-3.5-turbo",
+    "palm-2",
+    "vicuna-13b"
+  ],
+  "vocab_size": 30659,
+  "split_sizes": {
+    "test": {
+      "claude-v1": 336,
+      "gpt-3.5-turbo": 343,
+      "palm-2": 362,
+      "vicuna-13b": 337
+    },
+    "train": {
+      "claude-v1": 1626,
+      "gpt-3.5-turbo": 1628,
+      "palm-2": 1591,
+      "vicuna-13b": 1613
+    },
+    "val": {
+      "claude-v1": 346,
+      "gpt-3.5-turbo": 337,
+      "palm-2": 355,
+      "vicuna-13b": 358
+    }
+  },
+  "val_macro_f1": 0.6900099250081657,
+  "test": {
+    "accuracy": 0.6683599419448476,
+    "macro_f1": 0.6745603576969894,
+    "per_class": {
+      "claude-v1": {
+        "precision": 0.9066666666666666,
+        "recall": 0.8095238095238095,
+        "f1": 0.8553459119496856,
+        "support": 336
+      },
+      "gpt-3.5-turbo": {
+        "precision": 0.5177111716621253,
+        "recall": 0.5539358600583091,
+        "f1": 0.5352112676056338,
+        "support": 343
+      },
+      "palm-2": {
+        "precision": 0.7875,
+        "recall": 0.6961325966850829,
+        "f1": 0.7390029325513197,
+        "support": 362
+      },
+      "vicuna-13b": {
+        "precision": 0.5294117647058824,
+        "recall": 0.6142433234421365,
+        "f1": 0.5686813186813187,
+        "support": 337
+      }
+    },
+    "confusion_matrix": [
+      [
+        272,
+        41,
+        13,
+        10
+      ],
+      [
+        14,
+        190,
+        20,
+        119
+      ],
+      [
+        4,
+        51,
+        252,
+        55
+      ],
+      [
+        10,
+        85,
+        35,
+        207
+      ]
+    ]
+  },
+  "training": {
+    "cnnlstm": {
+      "best_val_macro_f1": 0.6900099250081657,
+      "best_epoch": 7,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.3293092951164707,
+          "val_macro_f1": 0.41734609250398724,
+          "val_acc": 0.4505730659025788
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.102609155679421,
+          "val_macro_f1": 0.5460357425188282,
+          "val_acc": 0.5573065902578797
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.9984191516930564,
+          "val_macro_f1": 0.5646323194293105,
+          "val_acc": 0.5744985673352435
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.9160723815432419,
+          "val_macro_f1": 0.6298327402466761,
+          "val_acc": 0.6318051575931232
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.8318875633773142,
+          "val_macro_f1": 0.6189732436486186,
+          "val_acc": 0.6339541547277937
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.7822650139196696,
+          "val_macro_f1": 0.6606986721204855,
+          "val_acc": 0.6683381088825215
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.7231288658609033,
+          "val_macro_f1": 0.6900099250081657,
+          "val_acc": 0.6848137535816619
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.7062623761559684,
+          "val_macro_f1": 0.6759656153938726,
+          "val_acc": 0.6755014326647565
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.6550656948232843,
+          "val_macro_f1": 0.676693951630765,
+          "val_acc": 0.6797994269340975
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.6293859475350816,
+          "val_macro_f1": 0.6893792813354014,
+          "val_acc": 0.6941260744985673
+        }
+      ]
+    }
+  },
+  "train_time_sec": 105.7,
+  "confusion_png": "results\\combined_cnnlstm_both_confusion.png"
+}

@@ -1,0 +1,30 @@
+combined_cnnlstm_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         336            343     362         337
+train       1626           1628    1591        1613
+val          346            337     355         358
+
+vocab size: 27072
+[combined_cnnlstm_output] epoch  1  loss 1.2977  val_acc 0.5086  val_macroF1 0.4725  (8.1s)
+[combined_cnnlstm_output] epoch  2  loss 0.9917  val_acc 0.6168  val_macroF1 0.6153  (7.6s)
+[combined_cnnlstm_output] epoch  3  loss 0.8748  val_acc 0.6332  val_macroF1 0.6248  (7.6s)
+[combined_cnnlstm_output] epoch  4  loss 0.8020  val_acc 0.6554  val_macroF1 0.6502  (7.7s)
+[combined_cnnlstm_output] epoch  5  loss 0.7303  val_acc 0.6683  val_macroF1 0.6643  (9.4s)
+[combined_cnnlstm_output] epoch  6  loss 0.7005  val_acc 0.6798  val_macroF1 0.6702  (9.9s)
+[combined_cnnlstm_output] epoch  7  loss 0.6522  val_acc 0.7013  val_macroF1 0.7072  (9.6s)
+[combined_cnnlstm_output] epoch  8  loss 0.6295  val_acc 0.7199  val_macroF1 0.7153  (9.8s)
+[combined_cnnlstm_output] epoch  9  loss 0.6011  val_acc 0.7106  val_macroF1 0.7071  (9.8s)
+[combined_cnnlstm_output] epoch 10  loss 0.5558  val_acc 0.7106  val_macroF1 0.7081  (10.4s)
+[combined_cnnlstm_output] epoch 11  loss 0.5216  val_acc 0.7185  val_macroF1 0.7158  (9.6s)
+[combined_cnnlstm_output] epoch 12  loss 0.5042  val_acc 0.6977  val_macroF1 0.6910  (9.8s)
+[combined_cnnlstm_output] epoch 13  loss 0.4697  val_acc 0.7042  val_macroF1 0.6958  (9.7s)
+[combined_cnnlstm_output] epoch 14  loss 0.4505  val_acc 0.7206  val_macroF1 0.7133  (9.9s)
+[combined_cnnlstm_output] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.7141  macro-F1 0.7129
+  claude-v1       P 0.938  R 0.851  F1 0.892  n=336
+  gpt-3.5-turbo   P 0.619  R 0.484  F1 0.543  n=343
+  palm-2          P 0.762  R 0.812  F1 0.786  n=362
+  vicuna-13b      P 0.568  R 0.706  F1 0.630  n=337
+saved results\combined_cnnlstm_output.json and results\combined_cnnlstm_output_confusion.png
