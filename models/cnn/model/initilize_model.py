@@ -1,5 +1,5 @@
 import torch.optim as optim
-from models.cnn.model.conv import CNN_NLP
+from model.conv import CNN_NLP
 import torch
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -10,7 +10,7 @@ def initilize_model(pretrained_embedding=None,
                     embed_dim=300,
                     filter_sizes=[3, 4, 5],
                     num_filters=[100, 100, 100],
-                    num_classes=2,
+                    num_classes=4,
                     dropout=0.5,
                     learning_rate=0.01):
     """Instantiate a CNN model and an optimizer."""
@@ -25,7 +25,7 @@ def initilize_model(pretrained_embedding=None,
                         embed_dim=embed_dim,
                         filter_sizes=filter_sizes,
                         num_filters=num_filters,
-                        num_classes=2,
+                        num_classes=4,
                         dropout=0.5)
     
     # Send model to `device` (GPU/CPU)
