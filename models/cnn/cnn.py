@@ -5,8 +5,6 @@ tokenize
 
 load a pretrained model
 
-
-
 RQ1: make a model/object that takes a string/list of strings 
 and outputs predictions of which model generated it
 
@@ -17,10 +15,19 @@ RQ3: tasks, it asks whether a model trained on classifying responses on math can
 
 import pandas as pd
 import torch
+import nltk
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    nltk.download('punkt_tab') # this will be global on ur computer
+
 from nltk.tokenize import word_tokenize
-from models.cnn.tokenize import tokenize, encode
-from models.cnn.load_embeddings import load_pretrained_vectors
-from models.cnn.dataloader import data_loader
+from tokenize_encode import tokenize, encode
+from load_embeddings import load_pretrained_vectors
+from dataloader import data_loader
+from model.initilize_model import initilize_model
+from model.train import train, set_seed, evaluate
+
 
 
 # 1. Load your preprocessed CSVs
@@ -56,6 +63,7 @@ val_inputs = encode(val_tokenized, word2idx, max_len)
 test_inputs = encode(test_tokenized, word2idx, max_len)
 
 # 6. Load pretrained vectors (using the word2idx built from train)
+'''We dont NEED to use this'''
 embeddings = load_pretrained_vectors(word2idx, "fastText/crawl-300d-2M.vec")
 embeddings = torch.tensor(embeddings)
 
@@ -67,3 +75,14 @@ train_dataloader, val_dataloader = data_loader(
     val_labels, # classes encoded
     batch_size=50
 )
+
+# 8. initialize model and optimizer
+model, optimizer = initilize_model(pretrained_embedding=embeddings, freeze_embedding=False)
+
+# set seed 
+set_seed(42)
+# 9. Train the model
+'''What's interesting is whether model will do worse if no val-dataloader'''
+train(model, optimizer, train_dataloader, val_dataloader, epochs=10)
+
+evaluate(model, val_dataloader)

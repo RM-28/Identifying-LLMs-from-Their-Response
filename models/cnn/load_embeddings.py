@@ -5,7 +5,7 @@ Instead of using random vectors for each word, we give the model a head start
 using pretrained vectors from fastText.
 '''
 
-from tqdm import tqdm_notebook
+from tqdm import tqdm
 import numpy as np
 
 def load_pretrained_vectors(word2idx, fname):
@@ -30,7 +30,7 @@ def load_pretrained_vectors(word2idx, fname):
 
     # Load pretrained vectors
     count = 0
-    for line in tqdm_notebook(fin):
+    for line in tqdm(fin):
         tokens = line.rstrip().split(' ')
         word = tokens[0]
         if word in word2idx:
