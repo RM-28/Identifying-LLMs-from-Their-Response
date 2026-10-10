@@ -1,0 +1,14 @@
+#data and model weights
+*.csv
+*.parquet
+*.pt
+*.pth
+
+#python
+__pycache__/
+*.pyc
+
+#environments
+venv/
+.venv/
+
