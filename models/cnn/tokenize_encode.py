@@ -55,6 +55,7 @@ def encode(tokenized_texts, word2idx, max_len):
         input_ids (np.array): Array of token indexes in the vocabulary with
             shape (N, max_len). It will the input of our CNN model.
     """
+    unk_idx = word2idx.get('<unk>', 1)
 
     input_ids = []
     for tokenized_sent in tokenized_texts:
@@ -62,7 +63,7 @@ def encode(tokenized_texts, word2idx, max_len):
         tokenized_sent += ['<pad>'] * (max_len - len(tokenized_sent))
 
         # Encode tokens to input_ids
-        input_id = [word2idx.get(token) for token in tokenized_sent]
+        input_id = [word2idx.get(token, unk_idx) for token in tokenized_sent]
         # so we have the token-id equivalent, [4, 7, 2, 9, 0, 0, 0, etc]
 
         input_ids.append(input_id)
