@@ -22,43 +22,43 @@ Team Names: Raj Mamidala, Kenny Liang, Aditya Raj
 
 ## CNN + RNN combined models
 
-Code: `models/team_models.py` and `models/combined_models.py` (models), `train_combined.py` (training + evaluation), `combined_eval.py` (metrics/plots), `run_all.sh`.
+All code is in `models/hybrid/`: `team_models.py` (models), `combined_models.py` (soft-vote ensemble + model list), `train_combined.py` (training + evaluation), `combined_eval.py` (metrics/plots), `run_all.sh`, `run_seeds.sh`, `aggregate_results.py`. Run everything from the repo root.
 
-Every combination is built from the teammates' models, imported unchanged: Kenny's CNN (`models/cnn/model/conv.py`, `CNN_NLP`) and Matteo's RNN (`models/rnn/rnn.py`, `RNN`).
+Every model is built from the teammates' code, imported unchanged: Kenny's CNN (`models/cnn/model/conv.py`, `CNN_NLP`) and Matteo's RNN (`models/rnn/rnn.py`, `RNN`), both starting from the fastText embeddings (loaded with `models/cnn/load_embeddings.py`).
 
 | `--model` | What it is |
 | --- | --- |
-| `cnnlstm` | Stacked: Kenny's embedding + convs (k = 3, 4, 5 × 100) → LSTM with Matteo's settings (unidirectional, 128) → final hidden state → Linear |
-| `fusion` | Parallel: Kenny's CNN ‖ Matteo's RNN (each with its own embedding, heads removed) → concat → Linear |
-| `ensemble` | Soft vote: averages the softmax probabilities of Kenny's CNN and Matteo's RNN |
 | `team_cnn`, `team_rnn` | Kenny's CNN and Matteo's RNN on their own (baselines) |
+| `cnnlstm` | Stacked: Kenny's embedding + convs (k = 3, 4, 5 × 100) → Matteo's RNN (unidirectional LSTM, 128) reading the conv feature maps → final hidden state → Linear |
+| `fusion` | Parallel: Kenny's CNN ‖ Matteo's RNN sharing one embedding layer, heads removed → concat (300 + 128) → Linear |
+| `ensemble` | Soft vote: Kenny's CNN and Matteo's RNN trained separately, softmax probabilities averaged |
 
-`--input_mode` picks the text the model sees: `output` (response only), `input` (prompt only), or `both` (`prompt <sep> response`; the response gets priority within `--max_len`).
+The task uses the response text only (`--input_mode output`).
 
 **Run**
 
 ```bash
 pip install -r requirements.txt
-huggingface-cli login            # the LMSYS dataset is gated: accept its terms on the HF page first
-python data/preprocess.py        # writes data/preprocessed/{train,valid,test}.csv
+python data/preprocess.py                 # writes data/preprocessed/{train,valid,test}.csv
+python models/cnn/embedding_download.py   # fastText vectors into fastText/ (not committed)
 
 # one run
-python train_combined.py --model cnnlstm --input_mode output --epochs 20 --lr 1e-3 --batch_size 64 --max_len 512 --seed 42
+python models/hybrid/train_combined.py --model cnnlstm --seed 0
 
 # quick smoke test on 100 examples per label
-python train_combined.py --model fusion --input_mode both --subset 100 --epochs 2
+python models/hybrid/train_combined.py --model fusion --subset 100 --epochs 2
 
-# everything (5 models x 3 input modes); extra flags go to every run; MODELS="cnnlstm fusion" picks a subset
-bash run_all.sh
-bash run_all.sh --cnn_ckpt checkpoints/cnn.pt --rnn_ckpt checkpoints/rnn.pt   # ensemble the CNN/RNN checkpoints
+# all 5 models for one seed; MODELS="cnnlstm fusion" picks a subset
+bash models/hybrid/run_all.sh
+
+# all 5 models x seeds 0-4, then the summary table
+bash models/hybrid/run_seeds.sh
 ```
 
-**Splits.** By default the data is re-split 70/15/15, stratified by label and grouped by prompt (both answers to an arena prompt land in the same split) with `--seed`. Use `--split preprocessed` to keep the splits from `data/preprocess.py` instead.
+**Data.** The team's train/valid/test CSVs from `data/preprocess.py` (`--split preprocessed`, the default), tokenized with nltk `word_tokenize`, cut to 256 tokens, vocab = train tokens seen at least twice.
 
-**Training.** Adam with weight decay (`--weight_decay`), gradient clipping, early stopping on validation macro-F1 (`--patience`). The best checkpoint goes to `checkpoints/combined_<model>_<mode>.pt`.
+**Training.** Same loop for every model, following `models/rnn/train.py`: Adam (lr 1e-3), batch 32, at most 12 epochs, early stopping on validation macro-F1 (patience 3); plus gradient clipping. The best checkpoint goes to `models/hybrid/checkpoints/` (not committed).
 
-**Ensemble checkpoints.** `--cnn_ckpt` / `--rnn_ckpt` accept a `torch.save`d `nn.Module`, `{"model": module, "vocab": {token: id}}`, or `{"model_class": "models.cnn:CNN", "model_kwargs": {...}, "state_dict": ..., "vocab": ...}`. The model must take `(ids, lengths)` or just `ids` (padding id 0) and return logits whose classes are in sorted label order. Without these flags, the ensemble trains Kenny's CNN and Matteo's RNN itself.
+**Multiple seeds.** `run_seeds.sh` runs seeds 0–4; the split stays the same, the seed changes initialisation and batch order. `aggregate_results.py` writes `models/hybrid/results/seeds/summary.{md,json}` with mean ± std across seeds, the best model by validation macro-F1, and paired comparisons (paired t-test across seeds, McNemar per seed).
 
-**Multiple seeds.** `bash run_seeds.sh` repeats the whole sweep for seeds 0–4. Each seed gets a different split and initialisation, and the seeds run in parallel; set `PARALLEL=0` to run them one after another. Results go to `results/seeds/seed<k>/`, and `aggregate_results.py` then writes `results/seeds/summary.{md,json}`. The summary has mean ± std and a 95% CI across seeds, plus paired comparisons between models: on the same seed every model uses the same test rows, and the summary includes a paired t-test across seeds and a McNemar test per seed. Each single run also reports a bootstrap 95% CI (`test.ci95`). cuDNN runs in deterministic mode, so a given seed reproduces exactly.
-
-**Outputs.** `results/combined_<model>_<mode>.json` (accuracy, macro-F1, per-class precision/recall/F1, confusion matrix, training curve, and per-member scores for the ensemble), `results/combined_<model>_<mode>_confusion.png`, and logs in `results/logs/`.
+**Outputs.** `models/hybrid/results/seeds/seed<k>/combined_<model>_output.json` (accuracy, macro-F1, per-class scores, confusion matrix, training curve), a confusion-matrix PNG, and logs in `logs/`.
