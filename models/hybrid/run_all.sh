@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run every combined model x input mode. Extra arguments are passed to each run,
+# Run every model (CNN, RNN and the three combinations) on the response text. Extra arguments are passed to each run,
 # e.g.  ./run_all.sh --epochs 3 --subset 200      (quick check)
 #       ./run_all.sh --cnn_ckpt models/hybrid/checkpoints/cnn.pt --rnn_ckpt models/hybrid/checkpoints/rnn.pt
 # --cnn_ckpt/--rnn_ckpt only affect the ensemble runs.
@@ -22,7 +22,8 @@ done
 mkdir -p "$OUT_DIR/logs"
 
 for model in ${MODELS:-cnnlstm fusion ensemble team_cnn team_rnn}; do
-  for mode in output input both; do
+  # the task uses the response text only
+  for mode in output; do
     extra=()
     [[ "$model" == "ensemble" ]] && extra=("${ENSEMBLE_ARGS[@]+"${ENSEMBLE_ARGS[@]}"}")
     echo "=== $model / $mode ==="

@@ -1,4 +1,4 @@
-"""Aggregate multi-seed runs of train_combined.py.
+"""Aggregate multi-seed runs of train_combined.py (best model is picked by validation macro-F1).
 
 Reads <root>/seed*/combined_<model>_<mode>.json (as written by run_seeds.sh) and reports:
   * mean ± std and a t-based 95% CI across seeds for test accuracy and macro-F1
@@ -94,6 +94,7 @@ def main():
     for key, by_seed in sorted(runs.items()):
         rs = [by_seed[s] for s in sorted(by_seed)]
         entry = {"seeds": sorted(by_seed),
+                 "val_macro_f1": summarize([r["val_macro_f1"] for r in rs]),
                  "accuracy": summarize([r["test"]["accuracy"] for r in rs]),
                  "macro_f1": summarize([r["test"]["macro_f1"] for r in rs]),
                  "per_class_f1": {lab: summarize([r["test"]["per_class"][lab]["f1"] for r in rs])
@@ -120,13 +121,19 @@ def main():
     seeds = sorted({s for by_seed in runs.values() for s in by_seed})
     lines = [f"# All models: {len(seeds)} seeds ({', '.join(map(str, seeds))})", "",
              "Test scores as mean ± std across seeds; [95% CI of the mean, t-distribution].", "",
-             "| model | input | accuracy | macro-F1 | macro-F1 95% CI |", "| --- | --- | --- | --- | --- |"]
+             "| model | input | val macro-F1 | test accuracy | test macro-F1 | test macro-F1 95% CI |",
+             "| --- | --- | --- | --- | --- | --- |"]
     for mode in MODES:
         for model in MODELS:
             e = table.get(f"{model}/{mode}")
             if e:
                 lo, hi = e["macro_f1"]["ci95"]
-                lines.append(f"| {model} | {mode} | {fmt(e['accuracy'])} | {fmt(e['macro_f1'])} | [{lo:.3f}, {hi:.3f}] |")
+                lines.append(f"| {model} | {mode} | {fmt(e['val_macro_f1'])} | {fmt(e['accuracy'])} "
+                             f"| {fmt(e['macro_f1'])} | [{lo:.3f}, {hi:.3f}] |")
+    # pick the best model by validation score (not test)
+    best = max(table, key=lambda k: table[k]["val_macro_f1"]["mean"])
+    lines += ["", f"Best by mean validation macro-F1: **{best}** "
+                  f"(val {fmt(table[best]['val_macro_f1'])}, test {fmt(table[best]['macro_f1'])})"]
     members = {k: v["members_macro_f1"] for k, v in table.items() if "members_macro_f1" in v}
     if members:
         lines += ["", "Ensemble members on their own (macro-F1):", "",
