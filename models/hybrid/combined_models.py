@@ -1,11 +1,3 @@
-"""CNN + RNN combinations built from the teammates' CNN (Kenny) and RNN (Matteo).
-
-All models take a padded batch of token ids (B, T) plus the true lengths (B,)
-and return unnormalised logits (B, num_classes). Index 0 is the padding token.
-The stacked and parallel models live in models/team_models.py; this file holds
-the soft-vote ensemble, the checkpoint loader and the model registry.
-"""
-
 import importlib
 
 import torch
@@ -16,13 +8,6 @@ from team_models import TeamCNN, TeamCNNLSTM, TeamFusion, TeamRNN
 
 
 class SoftVoteEnsemble(nn.Module):
-    """Averages the softmax probabilities of several trained classifiers.
-
-    Members may use different vocabularies, so forward() takes one
-    (ids, lengths) pair per member. It returns log(mean probability), which
-    keeps the "returns logits" contract: argmax and softmax are unchanged.
-    """
-
     def __init__(self, members, weights=None):
         super().__init__()
         self.members = nn.ModuleList(members)
@@ -31,7 +16,7 @@ class SoftVoteEnsemble(nn.Module):
 
     @staticmethod
     def member_logits(member, ids, lengths):
-        # Teammates' models may only accept ids; fall back to that signature.
+        # some models only accept ids; fall back to that signature
         try:
             return member(ids, lengths)
         except TypeError:
@@ -48,15 +33,6 @@ class SoftVoteEnsemble(nn.Module):
 
 
 def load_member(path, map_location="cpu"):
-    """Load a teammate checkpoint as (model, vocab_or_None).
-
-    Accepted formats (torch.save):
-      * a whole nn.Module
-      * {"model": nn.Module, "vocab": {token: id}}
-      * {"model_class": "models.cnn:CNN", "model_kwargs": {...},
-         "state_dict": {...}, "vocab": {token: id}}
-    "vocab" is optional; without it the member is fed the combined pipeline's vocab.
-    """
     ckpt = torch.load(path, map_location=map_location, weights_only=False)
     if isinstance(ckpt, nn.Module):
         return ckpt.eval(), None

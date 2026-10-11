@@ -1,10 +1,4 @@
-#!/usr/bin/env bash
-# RQ4 ablation: retrain Kenny's CNN (team_cnn) and the Parallel model (fusion)
-# on 4 versions of the text, 3 seeds each, with the unchanged train_combined.py.
-# Run python models/hybrid/rq4/make_ablation_data.py first.
-#   bash models/hybrid/rq4/run_ablation.sh
 set -euo pipefail
-# run from the repo root so data/ and fastText/ paths work
 cd "$(dirname "$0")/../../.."
 
 PYTHON="${PYTHON:-python}"

@@ -1,5 +1,3 @@
-"""Metrics and confusion-matrix plot shared by the combined-model experiments."""
-
 import matplotlib
 
 matplotlib.use("Agg")

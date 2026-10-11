@@ -1,0 +1,31 @@
+combined_team_rnn_both  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         327            333     323         368
+train       1645           1600    1661        1597
+val          336            375     324         343
+
+vocab size: 31070
+[combined_team_rnn_both] epoch  1  loss 1.3228  val_acc 0.3418  val_macroF1 0.3270  (19.4s)
+[combined_team_rnn_both] epoch  2  loss 1.2405  val_acc 0.4282  val_macroF1 0.4042  (18.0s)
+[combined_team_rnn_both] epoch  3  loss 1.1676  val_acc 0.4659  val_macroF1 0.4259  (19.2s)
+[combined_team_rnn_both] epoch  4  loss 1.0938  val_acc 0.4543  val_macroF1 0.4333  (16.4s)
+[combined_team_rnn_both] epoch  5  loss 1.0487  val_acc 0.4579  val_macroF1 0.4332  (19.3s)
+[combined_team_rnn_both] epoch  6  loss 1.0402  val_acc 0.4441  val_macroF1 0.3984  (19.7s)
+[combined_team_rnn_both] epoch  7  loss 0.9580  val_acc 0.5181  val_macroF1 0.5087  (20.0s)
+[combined_team_rnn_both] epoch  8  loss 0.9066  val_acc 0.5218  val_macroF1 0.4972  (20.1s)
+[combined_team_rnn_both] epoch  9  loss 0.8524  val_acc 0.5160  val_macroF1 0.5077  (20.7s)
+[combined_team_rnn_both] epoch 10  loss 0.8098  val_acc 0.5370  val_macroF1 0.5332  (21.7s)
+[combined_team_rnn_both] epoch 11  loss 0.7813  val_acc 0.5443  val_macroF1 0.5418  (21.1s)
+[combined_team_rnn_both] epoch 12  loss 0.7339  val_acc 0.5878  val_macroF1 0.5950  (18.2s)
+[combined_team_rnn_both] epoch 13  loss 0.7100  val_acc 0.5769  val_macroF1 0.5653  (16.4s)
+[combined_team_rnn_both] epoch 14  loss 0.6829  val_acc 0.5907  val_macroF1 0.5918  (16.3s)
+[combined_team_rnn_both] epoch 15  loss 0.6444  val_acc 0.5806  val_macroF1 0.5861  (14.4s)
+[combined_team_rnn_both] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.5714 [0.546, 0.597]  macro-F1 0.5876 [0.563, 0.610]
+  claude-v1       P 0.843  R 0.725  F1 0.780  n=327
+  gpt-3.5-turbo   P 0.379  R 0.511  F1 0.435  n=333
+  palm-2          P 0.759  R 0.644  F1 0.697  n=323
+  vicuna-13b      P 0.451  R 0.427  F1 0.439  n=368
+saved results/seeds/seed3\combined_team_rnn_both.json and results/seeds/seed3\combined_team_rnn_both_confusion.png

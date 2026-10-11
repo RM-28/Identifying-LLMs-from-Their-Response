@@ -1,16 +1,3 @@
-"""Aggregate multi-seed runs of train_combined.py (best model is picked by validation macro-F1).
-
-Reads <root>/seed*/combined_<model>_<mode>.json (as written by run_seeds.sh) and reports:
-  * mean ± std and a t-based 95% CI across seeds for test accuracy and macro-F1
-  * paired comparisons between configurations. Runs with the same seed share
-    the same test rows, so each seed gives one paired difference; across seeds
-    we report the mean difference, wins, and a paired t-test. Each seed also gets
-    an exact McNemar test on per-row correctness.
-Writes <root>/summary.json and <root>/summary.md.
-
-    python models/hybrid/aggregate_results.py --root models/hybrid/results/seeds
-"""
-
 import argparse
 import glob
 import itertools
@@ -154,7 +141,7 @@ def main():
     md = "\n".join(lines) + "\n"
     with open(os.path.join(args.root, "summary.md"), "w", encoding="utf-8") as f:
         f.write(md)
-    sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles default to cp1252 (no ± or −)
+    sys.stdout.reconfigure(encoding="utf-8")
     print(md)
 
 

@@ -24,14 +24,14 @@ Team Names: Raj Mamidala, Kenny Liang, Aditya Raj
 
 All code is in `models/hybrid/`: `team_models.py` (models), `combined_models.py` (soft-vote ensemble + model list), `train_combined.py` (training + evaluation), `combined_eval.py` (metrics/plots), `run_all.sh`, `run_seeds.sh`, `aggregate_results.py`. Run everything from the repo root.
 
-Every model is built from the teammates' code, imported unchanged: Kenny's CNN (`models/cnn/model/conv.py`, `CNN_NLP`) and Matteo's RNN (`models/rnn/rnn.py`, `RNN`), both starting from the fastText embeddings (loaded with `models/cnn/load_embeddings.py`).
+Every model is built from the project's CNN (`models/cnn/model/conv.py`, `CNN_NLP`) and RNN (`models/rnn/rnn.py`, `RNN`), imported unchanged, both starting from the fastText embeddings (loaded with `models/cnn/load_embeddings.py`).
 
 | `--model` | What it is |
 | --- | --- |
-| `team_cnn`, `team_rnn` | Kenny's CNN and Matteo's RNN on their own (baselines) |
-| `cnnlstm` | Stacked: Kenny's embedding + convs (k = 3, 4, 5 × 100) → Matteo's RNN (unidirectional LSTM, 128) reading the conv feature maps → final hidden state → Linear |
-| `fusion` | Parallel: Kenny's CNN ‖ Matteo's RNN sharing one embedding layer, heads removed → concat (300 + 128) → Linear |
-| `ensemble` | Soft vote: Kenny's CNN and Matteo's RNN trained separately, softmax probabilities averaged |
+| `team_cnn`, `team_rnn` | The CNN and the RNN on their own (baselines) |
+| `cnnlstm` | Stacked: CNN embedding + convs (k = 3, 4, 5 × 100) → RNN (unidirectional LSTM, 128) reading the conv feature maps → final hidden state → Linear |
+| `fusion` | Parallel: CNN ‖ RNN sharing one embedding layer, heads removed → concat (300 + 128) → Linear |
+| `ensemble` | Soft vote: the CNN and the RNN trained separately, softmax probabilities averaged |
 
 The task uses the response text only (`--input_mode output`).
 

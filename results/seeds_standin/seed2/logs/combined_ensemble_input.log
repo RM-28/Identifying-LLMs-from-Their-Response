@@ -1,0 +1,29 @@
+combined_ensemble_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         335            326     346         347
+train       1631           1645    1644        1601
+val          342            337     318         360
+
+vocab size: 12152
+[combined_ensemble_input/cnn] epoch  1  loss 1.6163  val_acc 0.2653  val_macroF1 0.2294  (1.8s)
+[combined_ensemble_input/cnn] epoch  2  loss 1.4769  val_acc 0.2697  val_macroF1 0.2345  (1.0s)
+[combined_ensemble_input/cnn] epoch  3  loss 1.4207  val_acc 0.2491  val_macroF1 0.2283  (1.0s)
+[combined_ensemble_input/cnn] epoch  4  loss 1.4073  val_acc 0.2587  val_macroF1 0.2324  (1.0s)
+[combined_ensemble_input/cnn] epoch  5  loss 1.3998  val_acc 0.2660  val_macroF1 0.2128  (1.2s)
+[combined_ensemble_input/cnn] early stop: no val macro-F1 gain for 3 epochs
+[combined_ensemble_input/rnn] epoch  1  loss 1.3966  val_acc 0.2668  val_macroF1 0.2560  (22.9s)
+[combined_ensemble_input/rnn] epoch  2  loss 1.3816  val_acc 0.2646  val_macroF1 0.2628  (20.0s)
+[combined_ensemble_input/rnn] epoch  3  loss 1.3744  val_acc 0.2741  val_macroF1 0.2658  (20.0s)
+[combined_ensemble_input/rnn] epoch  4  loss 1.3675  val_acc 0.2763  val_macroF1 0.2716  (19.8s)
+[combined_ensemble_input/rnn] epoch  5  loss 1.3563  val_acc 0.2668  val_macroF1 0.2659  (20.3s)
+[combined_ensemble_input/rnn] epoch  6  loss 1.3490  val_acc 0.2572  val_macroF1 0.2430  (20.0s)
+[combined_ensemble_input/rnn] epoch  7  loss 1.3322  val_acc 0.2712  val_macroF1 0.2685  (20.8s)
+[combined_ensemble_input/rnn] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2659 [0.243, 0.291]  macro-F1 0.2525 [0.231, 0.276]
+  claude-v1       P 0.216  R 0.099  F1 0.135  n=335
+  gpt-3.5-turbo   P 0.230  R 0.248  F1 0.239  n=326
+  palm-2          P 0.283  R 0.402  F1 0.332  n=346
+  vicuna-13b      P 0.299  R 0.308  F1 0.304  n=347
+saved results/seeds/seed2\combined_ensemble_input.json and results/seeds/seed2\combined_ensemble_input_confusion.png

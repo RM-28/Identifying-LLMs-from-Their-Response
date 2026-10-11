@@ -1,0 +1,31 @@
+combined_team_rnn_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         346            334     331         356
+train       1619           1603    1677        1604
+val          343            371     300         348
+
+vocab size: 12377
+[combined_team_rnn_input] epoch  1  loss 1.3906  val_acc 0.2570  val_macroF1 0.2391  (17.3s)
+[combined_team_rnn_input] epoch  2  loss 1.3828  val_acc 0.2474  val_macroF1 0.2360  (16.9s)
+[combined_team_rnn_input] epoch  3  loss 1.3713  val_acc 0.2504  val_macroF1 0.2239  (17.0s)
+[combined_team_rnn_input] epoch  4  loss 1.3628  val_acc 0.2577  val_macroF1 0.2490  (17.1s)
+[combined_team_rnn_input] epoch  5  loss 1.3513  val_acc 0.2474  val_macroF1 0.2319  (16.4s)
+[combined_team_rnn_input] epoch  6  loss 1.3314  val_acc 0.2592  val_macroF1 0.2572  (16.6s)
+[combined_team_rnn_input] epoch  7  loss 1.3040  val_acc 0.2533  val_macroF1 0.2507  (16.5s)
+[combined_team_rnn_input] epoch  8  loss 1.2795  val_acc 0.2643  val_macroF1 0.2576  (16.6s)
+[combined_team_rnn_input] epoch  9  loss 1.2464  val_acc 0.2555  val_macroF1 0.2529  (17.1s)
+[combined_team_rnn_input] epoch 10  loss 1.2183  val_acc 0.2643  val_macroF1 0.2615  (15.7s)
+[combined_team_rnn_input] epoch 11  loss 1.1729  val_acc 0.2695  val_macroF1 0.2669  (6.1s)
+[combined_team_rnn_input] epoch 12  loss 1.1381  val_acc 0.2724  val_macroF1 0.2715  (7.9s)
+[combined_team_rnn_input] epoch 13  loss 1.0969  val_acc 0.2628  val_macroF1 0.2584  (16.5s)
+[combined_team_rnn_input] epoch 14  loss 1.0539  val_acc 0.2628  val_macroF1 0.2621  (16.4s)
+[combined_team_rnn_input] epoch 15  loss 1.0158  val_acc 0.2665  val_macroF1 0.2650  (16.3s)
+[combined_team_rnn_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2655 [0.241, 0.290]  macro-F1 0.2636 [0.239, 0.288]
+  claude-v1       P 0.258  R 0.225  F1 0.241  n=346
+  gpt-3.5-turbo   P 0.260  R 0.237  F1 0.248  n=334
+  palm-2          P 0.263  R 0.266  F1 0.265  n=331
+  vicuna-13b      P 0.276  R 0.331  F1 0.301  n=356
+saved results/seeds/seed1\combined_team_rnn_input.json and results/seeds/seed1\combined_team_rnn_input_confusion.png

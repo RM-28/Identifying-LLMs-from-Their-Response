@@ -1,0 +1,32 @@
+combined_cnnlstm_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         346            334     331         356
+train       1619           1603    1677        1604
+val          343            371     300         348
+
+vocab size: 12377
+[combined_cnnlstm_input] epoch  1  loss 1.3980  val_acc 0.2261  val_macroF1 0.1128  (23.2s)
+[combined_cnnlstm_input] epoch  2  loss 1.3872  val_acc 0.2342  val_macroF1 0.1929  (23.6s)
+[combined_cnnlstm_input] epoch  3  loss 1.3848  val_acc 0.2540  val_macroF1 0.1453  (23.5s)
+[combined_cnnlstm_input] epoch  4  loss 1.3824  val_acc 0.2342  val_macroF1 0.1968  (21.0s)
+[combined_cnnlstm_input] epoch  5  loss 1.3797  val_acc 0.2408  val_macroF1 0.1848  (23.2s)
+[combined_cnnlstm_input] epoch  6  loss 1.3745  val_acc 0.2496  val_macroF1 0.2163  (23.6s)
+[combined_cnnlstm_input] epoch  7  loss 1.3681  val_acc 0.2621  val_macroF1 0.2237  (23.2s)
+[combined_cnnlstm_input] epoch  8  loss 1.3615  val_acc 0.2386  val_macroF1 0.2228  (21.0s)
+[combined_cnnlstm_input] epoch  9  loss 1.3466  val_acc 0.2643  val_macroF1 0.2562  (23.7s)
+[combined_cnnlstm_input] epoch 10  loss 1.3259  val_acc 0.2533  val_macroF1 0.2468  (23.7s)
+[combined_cnnlstm_input] epoch 11  loss 1.3164  val_acc 0.2584  val_macroF1 0.2322  (23.9s)
+[combined_cnnlstm_input] epoch 12  loss 1.2888  val_acc 0.2628  val_macroF1 0.2568  (23.7s)
+[combined_cnnlstm_input] epoch 13  loss 1.2597  val_acc 0.2621  val_macroF1 0.2617  (23.9s)
+[combined_cnnlstm_input] epoch 14  loss 1.2254  val_acc 0.2496  val_macroF1 0.2421  (23.3s)
+[combined_cnnlstm_input] epoch 15  loss 1.1938  val_acc 0.2548  val_macroF1 0.2433  (21.0s)
+[combined_cnnlstm_input] epoch 16  loss 1.1498  val_acc 0.2452  val_macroF1 0.2395  (23.1s)
+[combined_cnnlstm_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2553 [0.233, 0.279]  macro-F1 0.2555 [0.232, 0.280]
+  claude-v1       P 0.226  R 0.237  F1 0.231  n=346
+  gpt-3.5-turbo   P 0.248  R 0.251  F1 0.250  n=334
+  palm-2          P 0.268  R 0.266  F1 0.267  n=331
+  vicuna-13b      P 0.282  R 0.267  F1 0.274  n=356
+saved results/seeds/seed1\combined_cnnlstm_input.json and results/seeds/seed1\combined_cnnlstm_input_confusion.png

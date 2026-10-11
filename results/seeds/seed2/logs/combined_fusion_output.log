@@ -1,0 +1,30 @@
+combined_fusion_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         335            326     346         347
+train       1631           1645    1644        1601
+val          342            337     318         360
+
+vocab size: 27436
+[combined_fusion_output] epoch  1  loss 1.2667  val_acc 0.5844  val_macroF1 0.5826  (24.3s)
+[combined_fusion_output] epoch  2  loss 1.0341  val_acc 0.6175  val_macroF1 0.6188  (23.5s)
+[combined_fusion_output] epoch  3  loss 0.9167  val_acc 0.6419  val_macroF1 0.6498  (23.5s)
+[combined_fusion_output] epoch  4  loss 0.8200  val_acc 0.6448  val_macroF1 0.6454  (23.5s)
+[combined_fusion_output] epoch  5  loss 0.7464  val_acc 0.6743  val_macroF1 0.6773  (18.1s)
+[combined_fusion_output] epoch  6  loss 0.6633  val_acc 0.6912  val_macroF1 0.6924  (20.8s)
+[combined_fusion_output] epoch  7  loss 0.5884  val_acc 0.6905  val_macroF1 0.6920  (23.4s)
+[combined_fusion_output] epoch  8  loss 0.4954  val_acc 0.6772  val_macroF1 0.6863  (22.4s)
+[combined_fusion_output] epoch  9  loss 0.4148  val_acc 0.6831  val_macroF1 0.6945  (21.9s)
+[combined_fusion_output] epoch 10  loss 0.3557  val_acc 0.6927  val_macroF1 0.6979  (23.2s)
+[combined_fusion_output] epoch 11  loss 0.2843  val_acc 0.6934  val_macroF1 0.7007  (22.6s)
+[combined_fusion_output] epoch 12  loss 0.2342  val_acc 0.6846  val_macroF1 0.6909  (23.2s)
+[combined_fusion_output] epoch 13  loss 0.2065  val_acc 0.6735  val_macroF1 0.6779  (22.5s)
+[combined_fusion_output] epoch 14  loss 0.1628  val_acc 0.6735  val_macroF1 0.6800  (21.1s)
+[combined_fusion_output] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.7223 [0.699, 0.745]  macro-F1 0.7247 [0.703, 0.747]
+  claude-v1       P 0.878  R 0.863  F1 0.870  n=335
+  gpt-3.5-turbo   P 0.580  R 0.699  F1 0.634  n=326
+  palm-2          P 0.827  R 0.731  F1 0.776  n=346
+  vicuna-13b      P 0.638  R 0.599  F1 0.618  n=347
+saved results/seeds/seed2\combined_fusion_output.json and results/seeds/seed2\combined_fusion_output_confusion.png

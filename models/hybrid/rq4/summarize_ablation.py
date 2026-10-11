@@ -1,11 +1,3 @@
-"""RQ4 part 2: table of the ablation results (mean ± std over 3 seeds).
-
-Run from the repo root:
-    python models/hybrid/rq4/summarize_ablation.py
-Reads models/hybrid/rq4/results/ablation/<setting>/seed<k>/combined_<model>_output.json
-and writes ablation_results.csv and ablation_results.md next to them.
-"""
-
 import glob
 import json
 import os

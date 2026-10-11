@@ -1,11 +1,3 @@
-"""Train and evaluate the CNN+RNN combination models.
-
-Examples:
-    python models/hybrid/train_combined.py --model cnnlstm --input_mode output
-    python models/hybrid/train_combined.py --model ensemble --input_mode both \
-        --cnn_ckpt models/hybrid/checkpoints/cnn.pt --rnn_ckpt models/hybrid/checkpoints/rnn.pt
-"""
-
 import argparse
 import copy
 import json
@@ -28,14 +20,12 @@ from torch.utils.data import DataLoader, Dataset
 from combined_eval import bootstrap_ci, compute_metrics, plot_confusion
 from combined_models import MODELS, SoftVoteEnsemble, load_member
 
-# Kenny's fastText loader (models/cnn/load_embeddings.py)
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cnn"))
 from load_embeddings import load_pretrained_vectors
 
 nltk.download("punkt_tab", quiet=True)  # needed by word_tokenize, as in models/rnn/train.py
 
 PAD, UNK, SEP = "<pad>", "<unk>", "<sep>"
-# preprocess.py writes model/prompt/response; also accept the LLM_* naming
 COLUMN_ALIASES = {"LLM_name": "model", "LLM_Input": "prompt", "LLM_output": "response"}
 
 
@@ -59,8 +49,8 @@ def parse_args():
     p.add_argument("--split", choices=["stratified", "preprocessed"], default="preprocessed",
                    help="stratified: fresh 70/15/15 split stratified by label and grouped by "
                         "prompt; preprocessed: reuse the train/valid/test CSVs as-is")
-    p.add_argument("--cnn_ckpt", help="teammate CNN checkpoint for --model ensemble")
-    p.add_argument("--rnn_ckpt", help="teammate RNN checkpoint for --model ensemble")
+    p.add_argument("--cnn_ckpt", help="CNN checkpoint for --model ensemble")
+    p.add_argument("--rnn_ckpt", help="RNN checkpoint for --model ensemble")
     p.add_argument("--subset", type=int, default=0, help="use only N examples per label (smoke test)")
     p.add_argument("--data_dir", default="data/preprocessed")
     p.add_argument("--fasttext", default="fastText/crawl-300d-2M.vec", help="from models/cnn/embedding_download.py")
@@ -106,7 +96,6 @@ def assign_split(df, how, seed):
 
 
 def tokenize(text):
-    # same tokenizer as the teammates' CNN and RNN scripts
     return word_tokenize(text)
 
 
@@ -258,7 +247,7 @@ def main():
     embeddings = load_pretrained_vectors(vocab, args.fasttext)
     embeddings = torch.tensor(embeddings, dtype=torch.float32)
 
-    # ensemble members: teammate checkpoints if given, otherwise TeamCNN/TeamRNN trained here
+    # ensemble members: CNN/RNN checkpoints if given, otherwise TeamCNN/TeamRNN trained here
     members, member_vocabs, member_info, train_logs = [], [], {}, {}
     if args.model == "ensemble":
         for role, ckpt, standin in (("cnn", args.cnn_ckpt, "team_cnn"), ("rnn", args.rnn_ckpt, "team_rnn")):

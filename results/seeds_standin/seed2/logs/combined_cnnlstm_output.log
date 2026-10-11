@@ -1,0 +1,29 @@
+combined_cnnlstm_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         335            326     346         347
+train       1631           1645    1644        1601
+val          342            337     318         360
+
+vocab size: 27436
+[combined_cnnlstm_output] epoch  1  loss 1.3131  val_acc 0.4768  val_macroF1 0.4353  (28.0s)
+[combined_cnnlstm_output] epoch  2  loss 1.0092  val_acc 0.5696  val_macroF1 0.5551  (28.0s)
+[combined_cnnlstm_output] epoch  3  loss 0.8856  val_acc 0.6382  val_macroF1 0.6382  (27.9s)
+[combined_cnnlstm_output] epoch  4  loss 0.8084  val_acc 0.6566  val_macroF1 0.6537  (28.2s)
+[combined_cnnlstm_output] epoch  5  loss 0.7501  val_acc 0.6595  val_macroF1 0.6442  (27.7s)
+[combined_cnnlstm_output] epoch  6  loss 0.6989  val_acc 0.6765  val_macroF1 0.6734  (27.7s)
+[combined_cnnlstm_output] epoch  7  loss 0.6552  val_acc 0.7045  val_macroF1 0.7058  (28.0s)
+[combined_cnnlstm_output] epoch  8  loss 0.6219  val_acc 0.6964  val_macroF1 0.6980  (27.9s)
+[combined_cnnlstm_output] epoch  9  loss 0.5966  val_acc 0.6787  val_macroF1 0.6712  (27.3s)
+[combined_cnnlstm_output] epoch 10  loss 0.5601  val_acc 0.7126  val_macroF1 0.7127  (27.1s)
+[combined_cnnlstm_output] epoch 11  loss 0.5276  val_acc 0.7052  val_macroF1 0.7074  (21.8s)
+[combined_cnnlstm_output] epoch 12  loss 0.5062  val_acc 0.6993  val_macroF1 0.6976  (26.8s)
+[combined_cnnlstm_output] epoch 13  loss 0.4810  val_acc 0.6971  val_macroF1 0.6903  (26.9s)
+[combined_cnnlstm_output] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.7267 [0.703, 0.750]  macro-F1 0.7236 [0.701, 0.747]
+  claude-v1       P 0.870  R 0.899  F1 0.884  n=335
+  gpt-3.5-turbo   P 0.608  R 0.571  F1 0.589  n=326
+  palm-2          P 0.770  R 0.815  F1 0.792  n=346
+  vicuna-13b      P 0.640  R 0.620  F1 0.630  n=347
+saved results/seeds/seed2\combined_cnnlstm_output.json and results/seeds/seed2\combined_cnnlstm_output_confusion.png

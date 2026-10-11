@@ -1,11 +1,4 @@
-#!/usr/bin/env bash
-# Repeat the full run_all.sh sweep over several seeds, then aggregate.
-# The split is the team's fixed CSV split; the seed changes initialisation and batch order.
-# Results go to models/hybrid/results/seeds/seed<k>/.
-#   ./run_seeds.sh                        # seeds 0-4, run in parallel
-#   SEEDS="0 1 2" PARALLEL=0 ./run_seeds.sh --epochs 3    # extra flags go to every run
 set -euo pipefail
-# run from the repo root so data/ and fastText/ paths work
 cd "$(dirname "$0")/../.."
 
 PYTHON="${PYTHON:-python}"

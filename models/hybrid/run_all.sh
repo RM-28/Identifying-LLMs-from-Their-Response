@@ -1,10 +1,4 @@
-#!/usr/bin/env bash
-# Run every model (CNN, RNN and the three combinations) on the response text. Extra arguments are passed to each run,
-# e.g.  ./run_all.sh --epochs 3 --subset 200      (quick check)
-#       ./run_all.sh --cnn_ckpt models/hybrid/checkpoints/cnn.pt --rnn_ckpt models/hybrid/checkpoints/rnn.pt
-# --cnn_ckpt/--rnn_ckpt only affect the ensemble runs.
 set -euo pipefail
-# run from the repo root so data/ and fastText/ paths work
 cd "$(dirname "$0")/../.."
 
 PYTHON="${PYTHON:-python}"

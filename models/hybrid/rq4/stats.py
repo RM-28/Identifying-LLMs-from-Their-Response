@@ -1,10 +1,3 @@
-"""RQ4 part 1: per-LLM statistics of the responses in the training data.
-
-Run from the repo root:
-    python models/hybrid/rq4/stats.py
-Writes models/hybrid/rq4/results/llm_stats.csv and three plots.
-"""
-
 import os
 
 import matplotlib

@@ -1,0 +1,33 @@
+combined_ensemble_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         346            334     331         356
+train       1619           1603    1677        1604
+val          343            371     300         348
+
+vocab size: 12377
+[combined_ensemble_input/cnn] epoch  1  loss 1.4179  val_acc 0.2379  val_macroF1 0.1877  (1.7s)
+[combined_ensemble_input/cnn] epoch  2  loss 1.3502  val_acc 0.2445  val_macroF1 0.2088  (1.1s)
+[combined_ensemble_input/cnn] epoch  3  loss 1.2822  val_acc 0.2540  val_macroF1 0.2344  (1.1s)
+[combined_ensemble_input/cnn] epoch  4  loss 1.1923  val_acc 0.2570  val_macroF1 0.2498  (1.1s)
+[combined_ensemble_input/cnn] epoch  5  loss 1.0797  val_acc 0.2460  val_macroF1 0.2325  (1.1s)
+[combined_ensemble_input/cnn] epoch  6  loss 0.9505  val_acc 0.2702  val_macroF1 0.2682  (1.1s)
+[combined_ensemble_input/cnn] epoch  7  loss 0.8470  val_acc 0.2584  val_macroF1 0.2521  (1.0s)
+[combined_ensemble_input/cnn] epoch  8  loss 0.7636  val_acc 0.2805  val_macroF1 0.2770  (1.0s)
+[combined_ensemble_input/cnn] epoch  9  loss 0.7011  val_acc 0.2695  val_macroF1 0.2689  (1.0s)
+[combined_ensemble_input/cnn] epoch 10  loss 0.6582  val_acc 0.2673  val_macroF1 0.2672  (1.0s)
+[combined_ensemble_input/cnn] epoch 11  loss 0.6208  val_acc 0.2651  val_macroF1 0.2632  (1.1s)
+[combined_ensemble_input/cnn] early stop: no val macro-F1 gain for 3 epochs
+[combined_ensemble_input/rnn] epoch  1  loss 1.3913  val_acc 0.2555  val_macroF1 0.2430  (19.0s)
+[combined_ensemble_input/rnn] epoch  2  loss 1.3819  val_acc 0.2731  val_macroF1 0.2489  (18.3s)
+[combined_ensemble_input/rnn] epoch  3  loss 1.3737  val_acc 0.2482  val_macroF1 0.2306  (15.9s)
+[combined_ensemble_input/rnn] epoch  4  loss 1.3641  val_acc 0.2430  val_macroF1 0.2401  (28.4s)
+[combined_ensemble_input/rnn] epoch  5  loss 1.3523  val_acc 0.2452  val_macroF1 0.2291  (19.3s)
+[combined_ensemble_input/rnn] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2604 [0.238, 0.284]  macro-F1 0.2539 [0.231, 0.277]
+  claude-v1       P 0.243  R 0.249  F1 0.246  n=346
+  gpt-3.5-turbo   P 0.241  R 0.198  F1 0.217  n=334
+  palm-2          P 0.272  R 0.196  F1 0.228  n=331
+  vicuna-13b      P 0.278  R 0.390  F1 0.325  n=356
+saved results/seeds/seed1\combined_ensemble_input.json and results/seeds/seed1\combined_ensemble_input_confusion.png

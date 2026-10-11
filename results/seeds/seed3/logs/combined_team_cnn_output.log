@@ -1,0 +1,30 @@
+combined_team_cnn_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         327            333     323         368
+train       1645           1600    1661        1597
+val          336            375     324         343
+
+vocab size: 27436
+[combined_team_cnn_output] epoch  1  loss 1.1957  val_acc 0.5682  val_macroF1 0.5757  (3.6s)
+[combined_team_cnn_output] epoch  2  loss 0.8947  val_acc 0.6560  val_macroF1 0.6624  (2.6s)
+[combined_team_cnn_output] epoch  3  loss 0.7464  val_acc 0.6763  val_macroF1 0.6721  (2.6s)
+[combined_team_cnn_output] epoch  4  loss 0.6432  val_acc 0.6792  val_macroF1 0.6697  (2.6s)
+[combined_team_cnn_output] epoch  5  loss 0.5458  val_acc 0.7003  val_macroF1 0.7070  (2.6s)
+[combined_team_cnn_output] epoch  6  loss 0.4392  val_acc 0.7119  val_macroF1 0.7086  (2.6s)
+[combined_team_cnn_output] epoch  7  loss 0.3257  val_acc 0.6981  val_macroF1 0.7027  (2.6s)
+[combined_team_cnn_output] epoch  8  loss 0.2483  val_acc 0.7155  val_macroF1 0.7116  (2.5s)
+[combined_team_cnn_output] epoch  9  loss 0.1835  val_acc 0.7257  val_macroF1 0.7302  (2.2s)
+[combined_team_cnn_output] epoch 10  loss 0.1346  val_acc 0.7206  val_macroF1 0.7224  (1.7s)
+[combined_team_cnn_output] epoch 11  loss 0.1069  val_acc 0.7286  val_macroF1 0.7317  (1.6s)
+[combined_team_cnn_output] epoch 12  loss 0.0837  val_acc 0.7170  val_macroF1 0.7242  (1.6s)
+[combined_team_cnn_output] epoch 13  loss 0.0713  val_acc 0.7279  val_macroF1 0.7309  (1.2s)
+[combined_team_cnn_output] epoch 14  loss 0.0584  val_acc 0.7221  val_macroF1 0.7243  (1.2s)
+[combined_team_cnn_output] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.7180 [0.694, 0.742]  macro-F1 0.7239 [0.700, 0.747]
+  claude-v1       P 0.887  R 0.838  F1 0.862  n=327
+  gpt-3.5-turbo   P 0.554  R 0.619  F1 0.584  n=333
+  palm-2          P 0.808  R 0.768  F1 0.787  n=323
+  vicuna-13b      P 0.667  R 0.658  F1 0.662  n=368
+saved results/seeds/seed3\combined_team_cnn_output.json and results/seeds/seed3\combined_team_cnn_output_confusion.png

@@ -1,0 +1,21 @@
+combined_cnnlstm_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         329            346     334         349
+train       1638           1632    1635        1614
+val          341            330     339         345
+
+vocab size: 12192
+[combined_cnnlstm_input] epoch  1  loss 1.3890  val_acc 0.2561  val_macroF1 0.1723  (19.4s)
+[combined_cnnlstm_input] epoch  2  loss 1.3635  val_acc 0.2627  val_macroF1 0.2592  (20.2s)
+[combined_cnnlstm_input] epoch  3  loss 1.2671  val_acc 0.2546  val_macroF1 0.2544  (20.1s)
+[combined_cnnlstm_input] epoch  4  loss 1.0592  val_acc 0.2502  val_macroF1 0.2494  (19.8s)
+[combined_cnnlstm_input] epoch  5  loss 0.8555  val_acc 0.2494  val_macroF1 0.2438  (19.9s)
+[combined_cnnlstm_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2437 [0.222, 0.268]  macro-F1 0.2424 [0.220, 0.267]
+  claude-v1       P 0.242  R 0.201  F1 0.219  n=329
+  gpt-3.5-turbo   P 0.250  R 0.237  F1 0.243  n=346
+  palm-2          P 0.246  R 0.246  F1 0.246  n=334
+  vicuna-13b      P 0.239  R 0.289  F1 0.262  n=349
+saved results/seeds/seed4\combined_cnnlstm_input.json and results/seeds/seed4\combined_cnnlstm_input_confusion.png

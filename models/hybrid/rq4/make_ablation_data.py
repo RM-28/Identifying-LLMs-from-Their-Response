@@ -1,12 +1,3 @@
-"""RQ4 part 2: make changed copies of the team's CSVs for the ablation.
-
-Run from the repo root:
-    python models/hybrid/rq4/make_ablation_data.py
-Writes models/hybrid/rq4/data/<setting>/{train,valid,test}.csv (not committed).
-Only the response column is changed; the rows and the split stay the same.
-The "truncated to 50 tokens" setting needs no new data: it uses --max_len 50.
-"""
-
 import os
 import re
 
