@@ -11,7 +11,7 @@ import copy
 import json
 import os
 import random
-import re
+import sys
 import time
 from collections import Counter
 
@@ -21,28 +21,34 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedGroupKFold
+import nltk
+from nltk.tokenize import word_tokenize
 from torch.utils.data import DataLoader, Dataset
 
 from combined_eval import bootstrap_ci, compute_metrics, plot_confusion
 from combined_models import MODELS, SoftVoteEnsemble, load_member
 
+# Kenny's fastText loader (models/cnn/load_embeddings.py)
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cnn"))
+from load_embeddings import load_pretrained_vectors
+
+nltk.download("punkt_tab", quiet=True)  # needed by word_tokenize, as in models/rnn/train.py
+
 PAD, UNK, SEP = "<pad>", "<unk>", "<sep>"
 # preprocess.py writes model/prompt/response; also accept the LLM_* naming
 COLUMN_ALIASES = {"LLM_name": "model", "LLM_Input": "prompt", "LLM_output": "response"}
-# Case, punctuation and newlines are kept: they carry much of the style signal.
-TOKEN_RE = re.compile(r"\n|\w+|[^\w\s]")
 
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", choices=["cnnlstm", "fusion", "ensemble", "team_cnn", "team_rnn"], required=True)
     p.add_argument("--input_mode", choices=["output", "input", "both"], default="output")
-    p.add_argument("--epochs", type=int, default=20)
+    p.add_argument("--epochs", type=int, default=12)
     p.add_argument("--lr", type=float, default=1e-3)
-    p.add_argument("--batch_size", type=int, default=64)
-    p.add_argument("--max_len", type=int, default=512)
+    p.add_argument("--batch_size", type=int, default=32)
+    p.add_argument("--max_len", type=int, default=256)
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--weight_decay", type=float, default=1e-5)
+    p.add_argument("--weight_decay", type=float, default=0.0)
     p.add_argument("--patience", type=int, default=3, help="early-stopping patience (epochs)")
     p.add_argument("--dropout", type=float, default=0.5)
     p.add_argument("--emb_dim", type=int, help="unused: the team models keep their own sizes", default=128)
@@ -50,13 +56,14 @@ def parse_args():
     p.add_argument("--hidden_dim", type=int, help="unused: the team models keep their own sizes", default=128)
     p.add_argument("--min_freq", type=int, default=2)
     p.add_argument("--max_vocab", type=int, default=50000)
-    p.add_argument("--split", choices=["stratified", "preprocessed"], default="stratified",
+    p.add_argument("--split", choices=["stratified", "preprocessed"], default="preprocessed",
                    help="stratified: fresh 70/15/15 split stratified by label and grouped by "
                         "prompt; preprocessed: reuse the train/valid/test CSVs as-is")
     p.add_argument("--cnn_ckpt", help="teammate CNN checkpoint for --model ensemble")
     p.add_argument("--rnn_ckpt", help="teammate RNN checkpoint for --model ensemble")
     p.add_argument("--subset", type=int, default=0, help="use only N examples per label (smoke test)")
     p.add_argument("--data_dir", default="data/preprocessed")
+    p.add_argument("--fasttext", default="fastText/crawl-300d-2M.vec", help="from models/cnn/embedding_download.py")
     p.add_argument("--out_dir", default="models/hybrid/results")
     p.add_argument("--ckpt_dir", default="models/hybrid/checkpoints")
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
@@ -99,7 +106,8 @@ def assign_split(df, how, seed):
 
 
 def tokenize(text):
-    return TOKEN_RE.findall(text)
+    # same tokenizer as the teammates' CNN and RNN scripts
+    return word_tokenize(text)
 
 
 def build_vocab(token_lists, min_freq, max_vocab):
@@ -246,6 +254,10 @@ def main():
     vocab = build_vocab(train_df["tokens"], args.min_freq, args.max_vocab)
     print(f"vocab size: {len(vocab)}")
 
+    # fastText vectors for our vocab; words not in fastText get random vectors
+    embeddings = load_pretrained_vectors(vocab, args.fasttext)
+    embeddings = torch.tensor(embeddings, dtype=torch.float32)
+
     # ensemble members: teammate checkpoints if given, otherwise TeamCNN/TeamRNN trained here
     members, member_vocabs, member_info, train_logs = [], [], {}, {}
     if args.model == "ensemble":
@@ -276,7 +288,7 @@ def main():
         for i, (role, m) in enumerate(zip(("cnn", "rnn"), list(members))):
             if isinstance(m, str):  # train the member on view i (shares our vocab)
                 kwargs = model_kwargs(args, len(vocab), len(labels))
-                model = MODELS[m](**kwargs)
+                model = MODELS[m](embeddings=embeddings, **kwargs)
                 member_loaders = {k: _ViewLoader(v, i) for k, v in loaders.items()}
                 train_logs[role] = train_model(model, member_loaders, args, device, f"{run_name}/{role}")
                 save_checkpoint(os.path.join(args.ckpt_dir, f"standin_{m}_{args.input_mode}.pt"),
@@ -292,7 +304,7 @@ def main():
                                          if k in ("accuracy", "macro_f1")}
     else:
         kwargs = model_kwargs(args, len(vocab), len(labels))
-        net = MODELS[args.model](**kwargs)
+        net = MODELS[args.model](embeddings=embeddings, **kwargs)
         train_logs[args.model] = train_model(net, loaders, args, device, run_name)
         save_checkpoint(os.path.join(args.ckpt_dir, f"{run_name}.pt"),
                         args.model, net, kwargs, vocab, labels, args)
