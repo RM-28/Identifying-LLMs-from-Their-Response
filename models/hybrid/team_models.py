@@ -1,59 +1,61 @@
 """The teammates' CNN and RNN, and the CNN+RNN combinations built from them.
 
-The architectures are imported unchanged from models/cnn/model/conv.py (Kenny)
-and models/rnn/rnn.py (Matteo); this file only gives them the (ids, lengths)
-interface and constructor kwargs the shared pipeline uses, so every model is
-trained and tested on the same splits, tokens and training loop. TeamCNNLSTM
-(stacked) and TeamFusion (parallel) combine their parts; the soft-vote
-ensemble in combined_models.py averages TeamCNN and TeamRNN.
-Their own hyperparameter defaults are kept; the shared emb_dim/num_filters/
-hidden_dim flags are ignored.
+CNN_NLP comes from models/cnn/model/conv.py (Kenny) and RNN from models/rnn/rnn.py
+(Matteo). Both are imported unchanged and keep their own hyperparameters:
+CNN = filters 3/4/5 x 100, dropout 0.5; RNN = unidirectional LSTM, hidden 128,
+dropout 0.5. Both start from the same fastText embeddings, as in their scripts.
+
+All models here take (ids, lengths) and return logits.
 """
 
-import importlib.util
 import os
+import sys
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# folder that holds cnn/ and rnn/ (one level up from models/hybrid/)
-_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# make the teammates' folders importable (they are not packages)
+MODELS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(MODELS_DIR, "cnn"))
+sys.path.append(os.path.join(MODELS_DIR, "rnn"))
+
+from model.conv import CNN_NLP  # models/cnn/model/conv.py
+from rnn import RNN  # models/rnn/rnn.py
+
+# CNN_NLP has no padding in its convs, so the input must be at least as long
+# as the widest filter (5)
+MIN_LEN = 5
 
 
-def _load(rel_path, name):
-    # load by path: the teammates' folders are not packages
-    spec = importlib.util.spec_from_file_location(f"_team_{name}", os.path.join(_ROOT, rel_path))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return getattr(module, name)
-
-
-CNN_NLP = _load(os.path.join("cnn", "model", "conv.py"), "CNN_NLP")
-RNN = _load(os.path.join("rnn", "rnn.py"), "RNN")
+def pad_short_batch(ids):
+    # right-pad with <pad> (id 0) if the batch is shorter than MIN_LEN
+    if ids.size(1) < MIN_LEN:
+        ids = F.pad(ids, (0, MIN_LEN - ids.size(1)), value=0)
+    return ids
 
 
 class TeamCNN(nn.Module):
-    """Kenny's CNN_NLP: random-init 300-d embeddings, filters 3/4/5 x 100, max pool."""
+    """Kenny's CNN_NLP as it is."""
 
-    MIN_LEN = 5  # widest filter; shorter batches are right-padded
-
-    def __init__(self, vocab_size, num_classes, dropout=0.5, **_):
+    def __init__(self, vocab_size, num_classes, embeddings, dropout=0.5, **_):
         super().__init__()
-        self.net = CNN_NLP(vocab_size=vocab_size, num_classes=num_classes, dropout=dropout)
+        # clone so each model gets its own copy of the fastText weights
+        self.net = CNN_NLP(pretrained_embedding=embeddings.clone(), freeze_embedding=False,
+                           num_classes=num_classes, dropout=dropout)
 
     def forward(self, ids, lengths):
-        if ids.size(1) < self.MIN_LEN:
-            ids = F.pad(ids, (0, self.MIN_LEN - ids.size(1)), value=0)
-        return self.net(ids)
+        # CNN_NLP only needs the ids
+        return self.net(pad_short_batch(ids))
 
 
 class TeamRNN(nn.Module):
-    """Matteo's RNN: 128-d embedding, unidirectional LSTM, final hidden state."""
+    """Matteo's RNN as it is."""
 
-    def __init__(self, vocab_size, num_classes, dropout=0.5, **_):
+    def __init__(self, vocab_size, num_classes, embeddings, dropout=0.5, **_):
         super().__init__()
-        self.net = RNN(input_size=vocab_size, output_size=num_classes, dropout=dropout)
+        self.net = RNN(input_size=vocab_size, output_size=num_classes, dropout=dropout,
+                       pretrained_embeddings=embeddings.clone(), freeze_embeddings=False)
 
     def forward(self, ids, lengths):
         return self.net(ids, lengths)
@@ -62,52 +64,69 @@ class TeamRNN(nn.Module):
 # ---------------------------------------------------------------- combinations
 
 class TeamCNNLSTM(nn.Module):
-    """Stacked: Kenny's embedding + convs -> Matteo-style LSTM -> final hidden state -> Linear.
+    """Stacked (CNN -> RNN): Kenny's embedding + conv layers make a feature map,
+    and Matteo's RNN reads that feature map instead of word embeddings."""
 
-    Kenny's convs are unpadded, so kernel k gives T-k+1 steps; every map is trimmed
-    to the shortest (T-4) before concatenating, and the LSTM is packed with lengths-4.
-    """
-
-    MIN_LEN = TeamCNN.MIN_LEN
-
-    def __init__(self, vocab_size, num_classes, dropout=0.5, hidden_size=128, **_):
+    def __init__(self, vocab_size, num_classes, embeddings, dropout=0.5, **_):
         super().__init__()
-        cnn = CNN_NLP(vocab_size=vocab_size, num_classes=num_classes, dropout=dropout)
-        self.embedding, self.convs = cnn.embedding, cnn.conv1d_list
-        self.shrink = max(c.kernel_size[0] for c in self.convs) - 1
-        conv_dim = sum(c.out_channels for c in self.convs)
-        # same settings as Matteo's RNN.lstm; input is the conv features, not embeddings
-        self.lstm = nn.LSTM(conv_dim, hidden_size, batch_first=True)
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(hidden_size, num_classes)
+        # take the embedding and conv layers out of Kenny's model
+        cnn = CNN_NLP(pretrained_embedding=embeddings.clone(), freeze_embedding=False,
+                      num_classes=num_classes, dropout=dropout)
+        self.embedding = cnn.embedding
+        self.convs = cnn.conv1d_list
+        conv_dim = sum(conv.out_channels for conv in self.convs)  # 3 x 100 = 300
+        # a conv with kernel k makes T - k + 1 steps, so the widest one is 4 shorter
+        self.shrink = max(conv.kernel_size[0] for conv in self.convs) - 1
+
+        # Matteo's RNN. A dummy (1 x conv_dim) embedding makes his LSTM expect
+        # conv_dim inputs; then the embedding is replaced by Identity, because the
+        # conv features are already vectors. His forward (dropout, packing, last
+        # hidden state, fc) is used unchanged.
+        self.rnn = RNN(input_size=1, output_size=num_classes, dropout=dropout,
+                       pretrained_embeddings=torch.zeros(1, conv_dim))
+        self.rnn.embedding = nn.Identity()
 
     def forward(self, ids, lengths):
-        if ids.size(1) < self.MIN_LEN:
-            ids = F.pad(ids, (0, self.MIN_LEN - ids.size(1)), value=0)
-        x = self.embedding(ids).float().permute(0, 2, 1)
-        T = ids.size(1) - self.shrink
-        x = torch.cat([F.relu(conv(x))[:, :, :T] for conv in self.convs], dim=1).permute(0, 2, 1)
-        packed = nn.utils.rnn.pack_padded_sequence(
-            self.dropout(x), (lengths - self.shrink).clamp(min=1).cpu(),
-            batch_first=True, enforce_sorted=False)
-        _, (hidden, _) = self.lstm(packed)
-        return self.fc(self.dropout(hidden[-1]))
+        ids = pad_short_batch(ids)
+        # Copied from CNN_NLP.forward (models/cnn/model/conv.py), the lines before
+        # max pooling. We cannot call CNN_NLP.forward because it pools over time,
+        # and the LSTM needs the whole sequence.
+        x_embed = self.embedding(ids).float()
+        x_reshaped = x_embed.permute(0, 2, 1)
+        x_conv_list = [F.relu(conv1d(x_reshaped)) for conv1d in self.convs]
+
+        # cut every feature map to the shortest length so they can be stacked
+        steps = ids.size(1) - self.shrink
+        x_conv_list = [x_conv[:, :, :steps] for x_conv in x_conv_list]
+        features = torch.cat(x_conv_list, dim=1).permute(0, 2, 1)  # (batch, steps, 300)
+
+        # the feature map is also shorter than the text, so shorten the lengths too
+        conv_lengths = (lengths - self.shrink).clamp(min=1)
+        return self.rnn(features, conv_lengths)
 
 
 class TeamFusion(nn.Module):
-    """Parallel: Kenny's CNN and Matteo's RNN, each with its own embedding, heads removed;
-    their features (300 max-pooled + 128 final hidden) are concatenated -> Linear."""
+    """Parallel: Kenny's CNN and Matteo's RNN read the same embedding layer,
+    their features (300 max-pooled + 128 last hidden) are concatenated, and
+    one Linear layer classifies."""
 
-    def __init__(self, vocab_size, num_classes, dropout=0.5, **_):
+    def __init__(self, vocab_size, num_classes, embeddings, dropout=0.5, **_):
         super().__init__()
-        self.cnn = TeamCNN(vocab_size, num_classes, dropout)
-        self.rnn = TeamRNN(vocab_size, num_classes, dropout)
-        cnn_dim, rnn_dim = self.cnn.net.fc.in_features, self.rnn.net.fc.in_features
-        self.cnn.net.fc = nn.Identity()  # their forward() now returns features
+        self.cnn = TeamCNN(vocab_size, num_classes, embeddings, dropout)
+        self.rnn = TeamRNN(vocab_size, num_classes, embeddings, dropout)
+        # both branches use the CNN's embedding layer
+        self.rnn.net.embedding = self.cnn.net.embedding
+
+        cnn_dim = self.cnn.net.fc.in_features  # 300
+        rnn_dim = self.rnn.net.fc.in_features  # 128
+        # remove their classifiers so their forward() returns features
+        self.cnn.net.fc = nn.Identity()
         self.rnn.net.fc = nn.Identity()
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(cnn_dim + rnn_dim, num_classes)
 
     def forward(self, ids, lengths):
-        feats = torch.cat([self.cnn(ids, lengths), self.rnn(ids, lengths)], dim=1)
-        return self.fc(self.dropout(feats))
+        cnn_features = self.cnn(ids, lengths)
+        rnn_features = self.rnn(ids, lengths)
+        features = torch.cat([cnn_features, rnn_features], dim=1)
+        return self.fc(self.dropout(features))
