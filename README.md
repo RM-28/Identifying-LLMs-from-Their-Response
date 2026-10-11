@@ -9,7 +9,7 @@ Team Names: Raj Mamidala, Kenny Liang, Aditya Raj
 | Kenny Liang | CNN |
 | Aditya Raj | CNN-RNN Hybrid |
 
-### Responsibilities that need to
+### Responsibilities needed for the project
 - **Dataset preparation:** Load and balance the data, then split it into train/val/test sets
 - **Model development:** Build and train the CNN, RNN, and CNN-RNN hybrid
 - **Training & development:** Use one shared pipeline to see the data, splits and metric on every model

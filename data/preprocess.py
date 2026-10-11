@@ -2,10 +2,6 @@ import os
 
 import numpy as np
 import pandas as pd
-
-import sys
-print(sys.executable)
-
 from datasets import load_dataset
 
 #model names

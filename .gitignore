@@ -1,7 +1,6 @@
 #data and model weights
-*.csv
+data/preprocessed/*.csv
 *.parquet
-*.pt
 *.pth
 
 #python
@@ -14,3 +13,6 @@ venv/
 
 #fastText embeddings
 fastText
+#hybrid model checkpoints (not committed)
+checkpoints/
+models/hybrid/checkpoints/
