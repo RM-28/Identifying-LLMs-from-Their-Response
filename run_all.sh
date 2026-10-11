@@ -20,7 +20,7 @@ while [[ $# -gt 0 ]]; do
 done
 mkdir -p "$OUT_DIR/logs"
 
-for model in cnnlstm fusion ensemble; do
+for model in ${MODELS:-cnnlstm fusion ensemble team_cnn team_rnn}; do
   for mode in output input both; do
     extra=()
     [[ "$model" == "ensemble" ]] && extra=("${ENSEMBLE_ARGS[@]+"${ENSEMBLE_ARGS[@]}"}")

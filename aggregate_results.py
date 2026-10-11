@@ -23,7 +23,7 @@ from collections import defaultdict
 import numpy as np
 from scipy import stats
 
-MODELS = ("cnnlstm", "fusion", "ensemble")
+MODELS = ("cnnlstm", "fusion", "ensemble", "team_cnn", "team_rnn")
 MODES = ("output", "both", "input")
 
 
@@ -118,7 +118,7 @@ def main():
         json.dump(summary, f, indent=2)
 
     seeds = sorted({s for by_seed in runs.values() for s in by_seed})
-    lines = [f"# Combined models: {len(seeds)} seeds ({', '.join(map(str, seeds))})", "",
+    lines = [f"# All models: {len(seeds)} seeds ({', '.join(map(str, seeds))})", "",
              "Test scores as mean ± std across seeds; [95% CI of the mean, t-distribution].", "",
              "| model | input | accuracy | macro-F1 | macro-F1 95% CI |", "| --- | --- | --- | --- | --- |"]
     for mode in MODES:

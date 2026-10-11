@@ -35,7 +35,7 @@ TOKEN_RE = re.compile(r"\n|\w+|[^\w\s]")
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--model", choices=["cnnlstm", "fusion", "ensemble"], required=True)
+    p.add_argument("--model", choices=["cnnlstm", "fusion", "ensemble", "team_cnn", "team_rnn"], required=True)
     p.add_argument("--input_mode", choices=["output", "input", "both"], default="output")
     p.add_argument("--epochs", type=int, default=20)
     p.add_argument("--lr", type=float, default=1e-3)
@@ -45,9 +45,9 @@ def parse_args():
     p.add_argument("--weight_decay", type=float, default=1e-5)
     p.add_argument("--patience", type=int, default=3, help="early-stopping patience (epochs)")
     p.add_argument("--dropout", type=float, default=0.5)
-    p.add_argument("--emb_dim", type=int, default=128)
-    p.add_argument("--num_filters", type=int, default=64)
-    p.add_argument("--hidden_dim", type=int, default=128)
+    p.add_argument("--emb_dim", type=int, help="unused: the team models keep their own sizes", default=128)
+    p.add_argument("--num_filters", type=int, help="unused: the team models keep their own sizes", default=64)
+    p.add_argument("--hidden_dim", type=int, help="unused: the team models keep their own sizes", default=128)
     p.add_argument("--min_freq", type=int, default=2)
     p.add_argument("--max_vocab", type=int, default=50000)
     p.add_argument("--split", choices=["stratified", "preprocessed"], default="stratified",
@@ -214,7 +214,7 @@ def model_kwargs(args, vocab_size, num_classes):
 
 def save_checkpoint(path, name, model, kwargs, vocab, labels, args):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    torch.save({"model_class": f"models.combined_models:{MODELS[name].__name__}",
+    torch.save({"model_class": f"{MODELS[name].__module__}:{MODELS[name].__name__}",
                 "model_kwargs": kwargs, "state_dict": model.state_dict(),
                 "vocab": vocab, "labels": labels, "args": vars(args)}, path)
 
@@ -246,10 +246,10 @@ def main():
     vocab = build_vocab(train_df["tokens"], args.min_freq, args.max_vocab)
     print(f"vocab size: {len(vocab)}")
 
-    # ensemble members: teammate checkpoints if given, otherwise stand-ins trained here
+    # ensemble members: teammate checkpoints if given, otherwise TeamCNN/TeamRNN trained here
     members, member_vocabs, member_info, train_logs = [], [], {}, {}
     if args.model == "ensemble":
-        for role, ckpt, standin in (("cnn", args.cnn_ckpt, "cnn"), ("rnn", args.rnn_ckpt, "lstm")):
+        for role, ckpt, standin in (("cnn", args.cnn_ckpt, "team_cnn"), ("rnn", args.rnn_ckpt, "team_rnn")):
             if ckpt:
                 model, own_vocab = load_member(ckpt, map_location=device)
                 members.append(model.to(device))
@@ -258,7 +258,7 @@ def main():
             else:
                 members.append(standin)  # placeholder, trained below
                 member_vocabs.append(vocab)
-                member_info[role] = {"source": f"stand-in {standin} trained by train_combined.py"}
+                member_info[role] = {"source": f"{standin} trained by train_combined.py"}
         views = member_vocabs
     else:
         views = [vocab]
@@ -274,7 +274,7 @@ def main():
     t_start = time.time()
     if args.model == "ensemble":
         for i, (role, m) in enumerate(zip(("cnn", "rnn"), list(members))):
-            if isinstance(m, str):  # train a stand-in on view i (shares our vocab)
+            if isinstance(m, str):  # train the member on view i (shares our vocab)
                 kwargs = model_kwargs(args, len(vocab), len(labels))
                 model = MODELS[m](**kwargs)
                 member_loaders = {k: _ViewLoader(v, i) for k, v in loaders.items()}

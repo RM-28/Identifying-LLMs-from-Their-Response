@@ -22,13 +22,16 @@ Team Names: Raj Mamidala, Kenny Liang, Aditya Raj
 
 ## CNN + RNN combined models
 
-Code: `models/combined_models.py` (models), `train_combined.py` (training + evaluation), `combined_eval.py` (metrics/plots), `run_all.sh`.
+Code: `models/team_models.py` and `models/combined_models.py` (models), `train_combined.py` (training + evaluation), `combined_eval.py` (metrics/plots), `run_all.sh`.
+
+Every combination is built from the teammates' models, imported unchanged: Kenny's CNN (`models/cnn/model/conv.py`, `CNN_NLP`) and Matteo's RNN (`models/rnn/rnn.py`, `RNN`).
 
 | `--model` | What it is |
 | --- | --- |
-| `cnnlstm` | Embedding → parallel Conv1d (k = 2, 3, 4, 5) → concatenated feature maps → BiLSTM → max + mean pooling → Linear |
-| `fusion` | Shared embedding → CNN branch (global max pool) ‖ BiLSTM branch (final hidden states) → concat → Linear |
-| `ensemble` | Soft vote: averages the softmax probabilities of the CNN and RNN models |
+| `cnnlstm` | Stacked: Kenny's embedding + convs (k = 3, 4, 5 × 100) → LSTM with Matteo's settings (unidirectional, 128) → final hidden state → Linear |
+| `fusion` | Parallel: Kenny's CNN ‖ Matteo's RNN (each with its own embedding, heads removed) → concat → Linear |
+| `ensemble` | Soft vote: averages the softmax probabilities of Kenny's CNN and Matteo's RNN |
+| `team_cnn`, `team_rnn` | Kenny's CNN and Matteo's RNN on their own (baselines) |
 
 `--input_mode` picks the text the model sees: `output` (response only), `input` (prompt only), or `both` (`prompt <sep> response`; the response gets priority within `--max_len`).
 
@@ -45,7 +48,7 @@ python train_combined.py --model cnnlstm --input_mode output --epochs 20 --lr 1e
 # quick smoke test on 100 examples per label
 python train_combined.py --model fusion --input_mode both --subset 100 --epochs 2
 
-# everything (3 models x 3 input modes); extra flags go to every run
+# everything (5 models x 3 input modes); extra flags go to every run; MODELS="cnnlstm fusion" picks a subset
 bash run_all.sh
 bash run_all.sh --cnn_ckpt checkpoints/cnn.pt --rnn_ckpt checkpoints/rnn.pt   # ensemble the CNN/RNN checkpoints
 ```
@@ -54,7 +57,7 @@ bash run_all.sh --cnn_ckpt checkpoints/cnn.pt --rnn_ckpt checkpoints/rnn.pt   # 
 
 **Training.** Adam with weight decay (`--weight_decay`), gradient clipping, early stopping on validation macro-F1 (`--patience`). The best checkpoint goes to `checkpoints/combined_<model>_<mode>.pt`.
 
-**Ensemble checkpoints.** `--cnn_ckpt` / `--rnn_ckpt` accept a `torch.save`d `nn.Module`, `{"model": module, "vocab": {token: id}}`, or `{"model_class": "models.cnn:CNN", "model_kwargs": {...}, "state_dict": ..., "vocab": ...}`. The model must take `(ids, lengths)` or just `ids` (padding id 0) and return logits whose classes are in sorted label order. Without these flags, the ensemble trains its own stand-in CNN and BiLSTM.
+**Ensemble checkpoints.** `--cnn_ckpt` / `--rnn_ckpt` accept a `torch.save`d `nn.Module`, `{"model": module, "vocab": {token: id}}`, or `{"model_class": "models.cnn:CNN", "model_kwargs": {...}, "state_dict": ..., "vocab": ...}`. The model must take `(ids, lengths)` or just `ids` (padding id 0) and return logits whose classes are in sorted label order. Without these flags, the ensemble trains Kenny's CNN and Matteo's RNN itself.
 
 **Multiple seeds.** `bash run_seeds.sh` repeats the whole sweep for seeds 0–4. Each seed gets a different split and initialisation, and the seeds run in parallel; set `PARALLEL=0` to run them one after another. Results go to `results/seeds/seed<k>/`, and `aggregate_results.py` then writes `results/seeds/summary.{md,json}`. The summary has mean ± std and a 95% CI across seeds, plus paired comparisons between models: on the same seed every model uses the same test rows, and the summary includes a paired t-test across seeds and a McNemar test per seed. Each single run also reports a bootstrap 95% CI (`test.ci95`). cuDNN runs in deterministic mode, so a given seed reproduces exactly.
 
