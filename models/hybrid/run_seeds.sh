@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 # Repeat the full run_all.sh sweep over several seeds, then aggregate.
-# Each seed gets its own split and initialisation; results go to results/seeds/seed<k>/.
+# Each seed gets its own split and initialisation; results go to models/hybrid/results/seeds/seed<k>/.
 #   ./run_seeds.sh                        # seeds 0-4, run in parallel
 #   SEEDS="0 1 2" PARALLEL=0 ./run_seeds.sh --epochs 3    # extra flags go to every run
 set -euo pipefail
-cd "$(dirname "$0")"
+# run from the repo root so data/ and fastText/ paths work
+cd "$(dirname "$0")/../.."
 
 PYTHON="${PYTHON:-python}"
 SEEDS="${SEEDS:-0 1 2 3 4}"
 PARALLEL="${PARALLEL:-1}"
-ROOT="${ROOT:-results/seeds}"
+ROOT="${ROOT:-models/hybrid/results/seeds}"
 
 pids=()
 for seed in $SEEDS; do
   out="$ROOT/seed$seed"
   mkdir -p "$out"
-  cmd=(bash run_all.sh --seed "$seed" --out_dir "$out" --ckpt_dir "checkpoints/seed$seed" "$@")
+  cmd=(bash models/hybrid/run_all.sh --seed "$seed" --out_dir "$out" --ckpt_dir "models/hybrid/checkpoints/seed$seed" "$@")
   if [[ "$PARALLEL" == "1" ]]; then
     "${cmd[@]}" > "$out/run_all.out" 2>&1 &
     pids+=($!)
@@ -31,4 +32,4 @@ for pid in "${pids[@]+"${pids[@]}"}"; do
 done
 [[ $status -eq 0 ]] || { echo "at least one seed failed; see $ROOT/seed*/run_all.out" >&2; exit 1; }
 
-"$PYTHON" aggregate_results.py --root "$ROOT"
+"$PYTHON" models/hybrid/aggregate_results.py --root "$ROOT"

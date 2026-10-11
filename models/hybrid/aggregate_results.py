@@ -8,7 +8,7 @@ Reads <root>/seed*/combined_<model>_<mode>.json (as written by run_seeds.sh) and
     an exact McNemar test on per-row correctness.
 Writes <root>/summary.json and <root>/summary.md.
 
-    python aggregate_results.py --root results/seeds
+    python models/hybrid/aggregate_results.py --root models/hybrid/results/seeds
 """
 
 import argparse
@@ -83,7 +83,7 @@ def fmt(s):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--root", default="results/seeds")
+    p.add_argument("--root", default="models/hybrid/results/seeds")
     args = p.parse_args()
 
     runs = load_runs(args.root)

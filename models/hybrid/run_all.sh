@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Run every combined model x input mode. Extra arguments are passed to each run,
 # e.g.  ./run_all.sh --epochs 3 --subset 200      (quick check)
-#       ./run_all.sh --cnn_ckpt checkpoints/cnn.pt --rnn_ckpt checkpoints/rnn.pt
+#       ./run_all.sh --cnn_ckpt models/hybrid/checkpoints/cnn.pt --rnn_ckpt models/hybrid/checkpoints/rnn.pt
 # --cnn_ckpt/--rnn_ckpt only affect the ensemble runs.
 set -euo pipefail
-cd "$(dirname "$0")"
+# run from the repo root so data/ and fastText/ paths work
+cd "$(dirname "$0")/../.."
 
 PYTHON="${PYTHON:-python}"
-OUT_DIR=results
+OUT_DIR=models/hybrid/results
 
 ENSEMBLE_ARGS=()
 COMMON_ARGS=()
@@ -25,7 +26,7 @@ for model in ${MODELS:-cnnlstm fusion ensemble team_cnn team_rnn}; do
     extra=()
     [[ "$model" == "ensemble" ]] && extra=("${ENSEMBLE_ARGS[@]+"${ENSEMBLE_ARGS[@]}"}")
     echo "=== $model / $mode ==="
-    "$PYTHON" train_combined.py --model "$model" --input_mode "$mode" \
+    "$PYTHON" models/hybrid/train_combined.py --model "$model" --input_mode "$mode" \
       "${COMMON_ARGS[@]+"${COMMON_ARGS[@]}"}" "${extra[@]+"${extra[@]}"}" \
       2>&1 | tee "$OUT_DIR/logs/combined_${model}_${mode}.log"
   done

@@ -17,7 +17,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-_ROOT = os.path.dirname(os.path.abspath(__file__))
+# folder that holds cnn/ and rnn/ (one level up from models/hybrid/)
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _load(rel_path, name):

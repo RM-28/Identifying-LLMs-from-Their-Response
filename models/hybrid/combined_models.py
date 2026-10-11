@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.team_models import TeamCNN, TeamCNNLSTM, TeamFusion, TeamRNN
+from team_models import TeamCNN, TeamCNNLSTM, TeamFusion, TeamRNN
 
 
 class SoftVoteEnsemble(nn.Module):

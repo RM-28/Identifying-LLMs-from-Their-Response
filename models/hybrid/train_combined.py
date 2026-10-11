@@ -1,9 +1,9 @@
 """Train and evaluate the CNN+RNN combination models.
 
 Examples:
-    python train_combined.py --model cnnlstm --input_mode output
-    python train_combined.py --model ensemble --input_mode both \
-        --cnn_ckpt checkpoints/cnn.pt --rnn_ckpt checkpoints/rnn.pt
+    python models/hybrid/train_combined.py --model cnnlstm --input_mode output
+    python models/hybrid/train_combined.py --model ensemble --input_mode both \
+        --cnn_ckpt models/hybrid/checkpoints/cnn.pt --rnn_ckpt models/hybrid/checkpoints/rnn.pt
 """
 
 import argparse
@@ -24,7 +24,7 @@ from sklearn.model_selection import StratifiedGroupKFold
 from torch.utils.data import DataLoader, Dataset
 
 from combined_eval import bootstrap_ci, compute_metrics, plot_confusion
-from models.combined_models import MODELS, SoftVoteEnsemble, load_member
+from combined_models import MODELS, SoftVoteEnsemble, load_member
 
 PAD, UNK, SEP = "<pad>", "<unk>", "<sep>"
 # preprocess.py writes model/prompt/response; also accept the LLM_* naming
@@ -57,8 +57,8 @@ def parse_args():
     p.add_argument("--rnn_ckpt", help="teammate RNN checkpoint for --model ensemble")
     p.add_argument("--subset", type=int, default=0, help="use only N examples per label (smoke test)")
     p.add_argument("--data_dir", default="data/preprocessed")
-    p.add_argument("--out_dir", default="results")
-    p.add_argument("--ckpt_dir", default="checkpoints")
+    p.add_argument("--out_dir", default="models/hybrid/results")
+    p.add_argument("--ckpt_dir", default="models/hybrid/checkpoints")
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     return p.parse_args()
 
