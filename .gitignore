@@ -1,5 +1,5 @@
 #data and model weights
-*.csv
+data/preprocessed/*.csv
 *.parquet
 *.pth
 
