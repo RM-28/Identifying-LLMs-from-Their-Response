@@ -1,0 +1,35 @@
+combined_ensemble_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         336            343     362         337
+train       1626           1628    1591        1613
+val          346            337     355         358
+
+vocab size: 12156
+[combined_ensemble_input/cnn] epoch  1  loss 1.6102  val_acc 0.2607  val_macroF1 0.1956  (1.4s)
+[combined_ensemble_input/cnn] epoch  2  loss 1.4606  val_acc 0.2486  val_macroF1 0.1986  (0.7s)
+[combined_ensemble_input/cnn] epoch  3  loss 1.4263  val_acc 0.2536  val_macroF1 0.1959  (0.7s)
+[combined_ensemble_input/cnn] epoch  4  loss 1.4085  val_acc 0.2622  val_macroF1 0.1636  (0.7s)
+[combined_ensemble_input/cnn] epoch  5  loss 1.4067  val_acc 0.2600  val_macroF1 0.2341  (0.7s)
+[combined_ensemble_input/cnn] epoch  6  loss 1.3941  val_acc 0.2500  val_macroF1 0.2166  (0.8s)
+[combined_ensemble_input/cnn] epoch  7  loss 1.3939  val_acc 0.2557  val_macroF1 0.1993  (0.7s)
+[combined_ensemble_input/cnn] epoch  8  loss 1.3950  val_acc 0.2665  val_macroF1 0.2446  (0.7s)
+[combined_ensemble_input/cnn] epoch  9  loss 1.3851  val_acc 0.2507  val_macroF1 0.2070  (0.7s)
+[combined_ensemble_input/cnn] epoch 10  loss 1.3833  val_acc 0.2557  val_macroF1 0.2191  (0.7s)
+[combined_ensemble_input/cnn] epoch 11  loss 1.3811  val_acc 0.2443  val_macroF1 0.1733  (0.7s)
+[combined_ensemble_input/cnn] early stop: no val macro-F1 gain for 3 epochs
+[combined_ensemble_input/rnn] epoch  1  loss 1.3965  val_acc 0.2479  val_macroF1 0.2451  (8.0s)
+[combined_ensemble_input/rnn] epoch  2  loss 1.3835  val_acc 0.2658  val_macroF1 0.2496  (7.5s)
+[combined_ensemble_input/rnn] epoch  3  loss 1.3751  val_acc 0.2672  val_macroF1 0.2647  (8.1s)
+[combined_ensemble_input/rnn] epoch  4  loss 1.3667  val_acc 0.2872  val_macroF1 0.2872  (7.9s)
+[combined_ensemble_input/rnn] epoch  5  loss 1.3590  val_acc 0.2579  val_macroF1 0.2552  (7.8s)
+[combined_ensemble_input/rnn] epoch  6  loss 1.3450  val_acc 0.2557  val_macroF1 0.2530  (8.0s)
+[combined_ensemble_input/rnn] epoch  7  loss 1.3346  val_acc 0.2658  val_macroF1 0.2565  (7.5s)
+[combined_ensemble_input/rnn] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2649  macro-F1 0.2586
+  claude-v1       P 0.262  R 0.345  F1 0.298  n=336
+  gpt-3.5-turbo   P 0.256  R 0.233  F1 0.244  n=343
+  palm-2          P 0.285  R 0.323  F1 0.303  n=362
+  vicuna-13b      P 0.244  R 0.154  F1 0.189  n=337
+saved results\combined_ensemble_input.json and results\combined_ensemble_input_confusion.png

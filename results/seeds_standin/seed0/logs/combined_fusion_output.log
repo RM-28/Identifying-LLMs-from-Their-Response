@@ -1,0 +1,32 @@
+combined_fusion_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         363            339     338         336
+train       1595           1643    1634        1624
+val          350            326     336         348
+
+vocab size: 27274
+[combined_fusion_output] epoch  1  loss 1.4043  val_acc 0.5551  val_macroF1 0.5114  (25.8s)
+[combined_fusion_output] epoch  2  loss 1.0741  val_acc 0.6059  val_macroF1 0.6086  (23.1s)
+[combined_fusion_output] epoch  3  loss 0.9506  val_acc 0.6279  val_macroF1 0.6279  (25.5s)
+[combined_fusion_output] epoch  4  loss 0.8880  val_acc 0.6596  val_macroF1 0.6555  (25.5s)
+[combined_fusion_output] epoch  5  loss 0.8472  val_acc 0.6676  val_macroF1 0.6646  (23.1s)
+[combined_fusion_output] epoch  6  loss 0.7979  val_acc 0.6522  val_macroF1 0.6473  (25.5s)
+[combined_fusion_output] epoch  7  loss 0.7580  val_acc 0.6794  val_macroF1 0.6748  (22.2s)
+[combined_fusion_output] epoch  8  loss 0.7224  val_acc 0.6912  val_macroF1 0.6931  (21.6s)
+[combined_fusion_output] epoch  9  loss 0.6814  val_acc 0.6662  val_macroF1 0.6629  (24.7s)
+[combined_fusion_output] epoch 10  loss 0.6588  val_acc 0.6875  val_macroF1 0.6793  (24.7s)
+[combined_fusion_output] epoch 11  loss 0.6295  val_acc 0.7088  val_macroF1 0.7051  (24.7s)
+[combined_fusion_output] epoch 12  loss 0.5974  val_acc 0.7059  val_macroF1 0.7044  (24.6s)
+[combined_fusion_output] epoch 13  loss 0.5605  val_acc 0.7066  val_macroF1 0.7079  (24.8s)
+[combined_fusion_output] epoch 14  loss 0.5273  val_acc 0.6750  val_macroF1 0.6782  (22.9s)
+[combined_fusion_output] epoch 15  loss 0.5020  val_acc 0.6875  val_macroF1 0.6911  (24.4s)
+[combined_fusion_output] epoch 16  loss 0.4596  val_acc 0.6963  val_macroF1 0.6938  (24.8s)
+[combined_fusion_output] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.6810 [0.656, 0.706]  macro-F1 0.6813 [0.657, 0.705]
+  claude-v1       P 0.872  R 0.860  F1 0.865  n=363
+  gpt-3.5-turbo   P 0.543  R 0.501  F1 0.521  n=339
+  palm-2          P 0.837  R 0.683  F1 0.752  n=338
+  vicuna-13b      P 0.522  R 0.667  F1 0.586  n=336
+saved results/seeds/seed0\combined_fusion_output.json and results/seeds/seed0\combined_fusion_output_confusion.png

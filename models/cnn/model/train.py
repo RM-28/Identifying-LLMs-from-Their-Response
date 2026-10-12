@@ -3,6 +3,7 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
+from sklearn.metrics import f1_score
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Specify loss function
@@ -26,8 +27,8 @@ def train(model, optimizer, train_dataloader, val_dataloader=None, epochs=10):
     # Start training loop
     print("Start training...\n")
     print(f"{'Epoch':^7} | {'Train Loss':^12} | {'Val Loss':^10} | {\
-    'Val Acc':^9} | {'Elapsed':^9}")
-    print("-"*60)
+    'Val Acc':^9} | {'Val F1':^9} | {'Elapsed':^9}")
+    print("-"*72)
 
     for epoch_i in range(epochs):
         # =======================================
@@ -70,7 +71,7 @@ def train(model, optimizer, train_dataloader, val_dataloader=None, epochs=10):
         if val_dataloader is not None:
             # After the completion of each training epoch, measure the model's
             # performance on our validation set.
-            val_loss, val_accuracy = evaluate(model, val_dataloader)
+            val_loss, val_accuracy, val_f1 = evaluate(model, val_dataloader)
 
             # Track the best accuracy
             if val_accuracy > best_accuracy:
@@ -79,7 +80,8 @@ def train(model, optimizer, train_dataloader, val_dataloader=None, epochs=10):
             # Print performance over the entire training data
             time_elapsed = time.time() - t0_epoch
             print(f"{epoch_i + 1:^7} | {avg_train_loss:^12.6f} | {\
-            val_loss:^10.6f} | {val_accuracy:^9.2f} | {time_elapsed:^9.2f}")
+            val_loss:^10.6f} | {val_accuracy:^9.2f} | {val_f1:^9.4f} | {\
+            time_elapsed:^9.2f}")
             
     print("\n")
     print(f"Training complete! Best accuracy: {best_accuracy:.2f}%.")
@@ -95,6 +97,8 @@ def evaluate(model, val_dataloader):
     # Tracking variables
     val_accuracy = []
     val_loss = []
+    val_labels = []
+    val_preds = []
 
     # For each batch in our validation set...
     for batch in val_dataloader:
@@ -111,6 +115,8 @@ def evaluate(model, val_dataloader):
 
         # Get the predictions
         preds = torch.argmax(logits, dim=1).flatten()
+        val_labels.extend(b_labels.cpu().numpy())
+        val_preds.extend(preds.cpu().numpy())
 
         # Calculate the accuracy rate
         accuracy = (preds == b_labels).cpu().numpy().mean() * 100
@@ -119,5 +125,6 @@ def evaluate(model, val_dataloader):
     # Compute the average accuracy and loss over the validation set.
     val_loss = np.mean(val_loss)
     val_accuracy = np.mean(val_accuracy)
+    val_f1 = f1_score(val_labels, val_preds, average="weighted", zero_division=0)
 
-    return val_loss, val_accuracy
+    return val_loss, val_accuracy, val_f1

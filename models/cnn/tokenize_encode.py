@@ -19,7 +19,7 @@ def tokenize(texts):
         max_len (int): Maximum sentence length
     """
 
-    max_len = 0
+    max_len = 0 # could cap this to 512
     tokenized_texts = []
     word2idx = {}
 

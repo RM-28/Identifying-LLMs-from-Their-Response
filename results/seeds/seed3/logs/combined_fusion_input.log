@@ -1,0 +1,22 @@
+combined_fusion_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         327            333     323         368
+train       1645           1600    1661        1597
+val          336            375     324         343
+
+vocab size: 12281
+[combined_fusion_input] epoch  1  loss 1.4263  val_acc 0.2431  val_macroF1 0.1983  (22.2s)
+[combined_fusion_input] epoch  2  loss 1.3801  val_acc 0.2533  val_macroF1 0.2118  (22.2s)
+[combined_fusion_input] epoch  3  loss 1.3543  val_acc 0.2583  val_macroF1 0.2416  (21.4s)
+[combined_fusion_input] epoch  4  loss 1.3211  val_acc 0.2620  val_macroF1 0.2361  (19.1s)
+[combined_fusion_input] epoch  5  loss 1.2861  val_acc 0.2453  val_macroF1 0.2375  (18.9s)
+[combined_fusion_input] epoch  6  loss 1.2313  val_acc 0.2554  val_macroF1 0.2372  (27.4s)
+[combined_fusion_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2480 [0.225, 0.271]  macro-F1 0.2299 [0.208, 0.252]
+  claude-v1       P 0.253  R 0.502  F1 0.337  n=327
+  gpt-3.5-turbo   P 0.227  R 0.105  F1 0.144  n=333
+  palm-2          P 0.250  R 0.217  F1 0.232  n=323
+  vicuna-13b      P 0.244  R 0.179  F1 0.207  n=368
+saved results/seeds/seed3\combined_fusion_input.json and results/seeds/seed3\combined_fusion_input_confusion.png

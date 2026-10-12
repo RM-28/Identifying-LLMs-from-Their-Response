@@ -1,0 +1,30 @@
+combined_cnnlstm_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         363            339     338         336
+train       1595           1643    1634        1624
+val          350            326     336         348
+
+vocab size: 12146
+[combined_cnnlstm_input] epoch  1  loss 1.3888  val_acc 0.2419  val_macroF1 0.1700  (19.4s)
+[combined_cnnlstm_input] epoch  2  loss 1.3689  val_acc 0.2647  val_macroF1 0.2493  (20.5s)
+[combined_cnnlstm_input] epoch  3  loss 1.3040  val_acc 0.2596  val_macroF1 0.2519  (20.4s)
+[combined_cnnlstm_input] epoch  4  loss 1.1332  val_acc 0.2596  val_macroF1 0.2541  (19.9s)
+[combined_cnnlstm_input] epoch  5  loss 0.9214  val_acc 0.2618  val_macroF1 0.2564  (20.1s)
+[combined_cnnlstm_input] epoch  6  loss 0.7580  val_acc 0.2713  val_macroF1 0.2711  (18.1s)
+[combined_cnnlstm_input] epoch  7  loss 0.6636  val_acc 0.2654  val_macroF1 0.2640  (19.6s)
+[combined_cnnlstm_input] epoch  8  loss 0.5989  val_acc 0.2779  val_macroF1 0.2768  (19.0s)
+[combined_cnnlstm_input] epoch  9  loss 0.5411  val_acc 0.2757  val_macroF1 0.2681  (18.4s)
+[combined_cnnlstm_input] epoch 10  loss 0.5106  val_acc 0.2647  val_macroF1 0.2588  (20.2s)
+[combined_cnnlstm_input] epoch 11  loss 0.4719  val_acc 0.2809  val_macroF1 0.2803  (17.6s)
+[combined_cnnlstm_input] epoch 12  loss 0.4517  val_acc 0.2728  val_macroF1 0.2718  (19.9s)
+[combined_cnnlstm_input] epoch 13  loss 0.4213  val_acc 0.2801  val_macroF1 0.2778  (20.2s)
+[combined_cnnlstm_input] epoch 14  loss 0.4084  val_acc 0.2801  val_macroF1 0.2783  (19.2s)
+[combined_cnnlstm_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2435 [0.221, 0.265]  macro-F1 0.2429 [0.220, 0.265]
+  claude-v1       P 0.263  R 0.248  F1 0.255  n=363
+  gpt-3.5-turbo   P 0.225  R 0.274  F1 0.247  n=339
+  palm-2          P 0.250  R 0.210  F1 0.228  n=338
+  vicuna-13b      P 0.240  R 0.241  F1 0.241  n=336
+saved results/seeds/seed0\combined_cnnlstm_input.json and results/seeds/seed0\combined_cnnlstm_input_confusion.png

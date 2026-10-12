@@ -12,7 +12,7 @@ def initilize_model(pretrained_embedding=None,
                     num_filters=[100, 100, 100],
                     num_classes=4,
                     dropout=0.5,
-                    learning_rate=0.01):
+                    learning_rate=0.001):
     """Instantiate a CNN model and an optimizer."""
 
     assert (len(filter_sizes) == len(num_filters)), "filter_sizes and \
@@ -25,15 +25,14 @@ def initilize_model(pretrained_embedding=None,
                         embed_dim=embed_dim,
                         filter_sizes=filter_sizes,
                         num_filters=num_filters,
-                        num_classes=4,
-                        dropout=0.5)
+                        num_classes=num_classes,
+                        dropout=dropout)
     
     # Send model to `device` (GPU/CPU)
     cnn_model.to(device)
 
     # Instantiate Adadelta optimizer
-    optimizer = optim.Adadelta(cnn_model.parameters(),
-                               lr=learning_rate,
-                               rho=0.95)
+    optimizer = optim.Adam(cnn_model.parameters(),
+                            lr=learning_rate)
 
     return cnn_model, optimizer

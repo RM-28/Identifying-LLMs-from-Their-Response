@@ -3,17 +3,24 @@ from rnn import RNN
 import json, os, re
 from collections import Counter
 
+import nltk
+from nltk.tokenize import word_tokenize
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+
+from tqdm import tqdm
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, TensorDataset
+
+
+nltk.download('punkt_tab', quiet = True)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 SEED = 42
-INPUT_TYPE = "response"
+INPUT_TYPE = "both"
 
 torch.manual_seed(SEED)
 np.random.seed(SEED)
@@ -35,11 +42,11 @@ for i in range(len(train_df)):
     prompt = train_df["prompt"][i]
     response = train_df["response"][i]
     if INPUT_TYPE == "response":
-        token = re.findall(r'\w+|[^\w\s]|\n', response.lower())
+        token = word_tokenize(response)
     elif INPUT_TYPE == "prompt":
-        token = re.findall(r'\w+|[^\w\s]|\n', prompt.lower())
+        token = word_tokenize(prompt)
     else:
-        token = re.findall(r'\w+|[^\w\s]|\n', prompt.lower())[:64] + ["<SEP>"] + re.findall(r'\w+|[^\w\s]|\n', response.lower())
+        token = word_tokenize(prompt)[:64] + ["<SEP>"] + word_tokenize(response)
     train_tokens.append(token[:256])
 
 #validation set
@@ -48,11 +55,11 @@ for i in range(len(valid_df)):
     prompt = valid_df["prompt"][i]
     response = valid_df["response"][i]
     if INPUT_TYPE == "response":
-        token = re.findall(r'\w+|[^\w\s]|\n', response.lower())
+        token = word_tokenize(response)
     elif INPUT_TYPE == "prompt":
-        token = re.findall(r'\w+|[^\w\s]|\n', prompt.lower())
+        token = word_tokenize(prompt)
     else:
-        token = re.findall(r'\w+|[^\w\s]|\n', prompt.lower())[:64] + ["<SEP>"] + re.findall(r'\w+|[^\w\s]|\n', response.lower())
+        token = word_tokenize(prompt)[:64] + ["<SEP>"] + word_tokenize(response)
     valid_tokens.append(token[:256])
 
 #test set
@@ -61,11 +68,11 @@ for i in range(len(test_df)):
     prompt = test_df["prompt"][i]
     response = test_df["response"][i]
     if INPUT_TYPE == "response":
-        token = re.findall(r'\w+|[^\w\s]|\n', response.lower())
+        token = word_tokenize(response)
     elif INPUT_TYPE == "prompt":
-        token = re.findall(r'\w+|[^\w\s]|\n', prompt.lower())
+        token = word_tokenize(prompt)
     else:
-        token = re.findall(r'\w+|[^\w\s]|\n', prompt.lower())[:64] + ["<SEP>"] + re.findall(r'\w+|[^\w\s]|\n', response.lower())
+        token = word_tokenize(prompt)[:64] + ["<SEP>"] + word_tokenize(response)
     test_tokens.append(token[:256])
 
 #build vocabulary from tokens
@@ -79,6 +86,21 @@ for word, count in counts.most_common():
         vocab[word] = len(vocab)
 
 print(f"Vocabulary size: {len(vocab)}")
+
+#use fastText pretrained embeddings
+embeddings = np.random.uniform(-0.25, 0.25, (len(vocab), 300))
+embeddings[0] = 0
+found = 0
+with open("fastText/crawl-300d-2M.vec", encoding = "utf-8", errors = "ignore") as f:
+    f.readline()
+    for line in tqdm(f, desc="Loading fastText", total=2000000):
+        parts = line.rstrip().split(" ")
+        if parts[0] in vocab:
+            embeddings[vocab[parts[0]]] = np.array(parts[1:], dtype = np.float32)
+            found += 1
+
+print(f"Pretrained vectors found for {found} / {len(vocab)} words")
+embeddings = torch.tensor(embeddings, dtype = torch.float32)
 
 #encode tokens to indices
 train_ids = []
@@ -139,7 +161,7 @@ test_data = TensorDataset(torch.tensor(test_ids), torch.tensor(test_length), tor
 test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
 
 #build the RNN model
-model = RNN(input_size = len(vocab), output_size = len(labels), bidirectional = False).to(device)
+model = RNN(input_size = len(vocab), output_size = len(labels), bidirectional = False, pretrained_embeddings = embeddings, freeze_embeddings = False).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 loss_function = nn.CrossEntropyLoss()
 
@@ -150,10 +172,11 @@ best_val_f1 = -1
 bad_epochs = 0
 
 #train the model
-for epoch in range(10):
+for epoch in range(12):
     model.train()
     total_loss = 0
-    for x, lengths, y in train_loader:
+    progress = tqdm(train_loader, desc = f"Epoch {epoch + 1}")
+    for x, lengths, y in progress:
         x, y = x.to(device), y.to(device)
         optimizer.zero_grad()
         output = model(x, lengths)
@@ -161,20 +184,23 @@ for epoch in range(10):
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
+        progress.set_postfix(loss = f"{loss.item():.4f}")
 
     #validation
     model.eval()
     golds, preds = [], []
+    val_loss = 0
     with torch.no_grad():
         for x, lengths, y in valid_loader:
             x, y = x.to(device), y.to(device)
             output = model(x, lengths)
+            val_loss += loss_function(output, y).item()
             pred = torch.argmax(output, dim=1)
             golds.extend(y.cpu().numpy())
             preds.extend(pred.cpu().numpy())
 
     val_f1 = f1_score(golds, preds, average='weighted')
-    print(f"Epoch {epoch+1}, Loss: {total_loss:.4f}, Validation F1: {val_f1:.4f}")
+    print(f"Epoch {epoch+1}, Train Loss: {total_loss:.4f}, Val loss: {val_loss/len(valid_loader)}, Val F1: {val_f1:.4f}")
 
     #early stopping
     if val_f1 > best_val_f1:
@@ -208,3 +234,9 @@ results = {
 
 with open(path, "w") as f:
     json.dump(results, f)
+
+print(f"\nTest accuracy: {results['accuracy']:.4f}")
+print(f"F1 Score: {results['f1_score']:.4f}")
+print(classification_report(golds, preds, target_names = labels))
+print("Confusion Matrix:")
+print(pd.DataFrame(results['confusion_matrix'], index = labels, columns = labels))

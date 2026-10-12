@@ -16,6 +16,7 @@ RQ3: tasks, it asks whether a model trained on classifying responses on math can
 import pandas as pd
 import torch
 import nltk
+from pathlib import Path
 try:
     nltk.data.find('tokenizers/punkt_tab')
 except LookupError:
@@ -26,8 +27,11 @@ from tokenize_encode import tokenize, encode
 from load_embeddings import load_pretrained_vectors
 from dataloader import data_loader
 from model.initilize_model import initilize_model
-from model.train import train, set_seed, evaluate
+from model.train import train, set_seed, evaluate, device
 
+print(f"Training device: {device}")
+if device.type == "cuda":
+    print(f"CUDA device: {torch.cuda.get_device_name(device)}")
 
 
 # 1. Load your preprocessed CSVs
@@ -44,9 +48,13 @@ val_labels = valid_df["model"].map(label_mapping).values
 test_labels = test_df["model"].map(label_mapping).values
 
 # 3. Extract the text data into lists
-train_texts = train_df["response"].tolist()
-val_texts = valid_df["response"].tolist()
-test_texts = test_df["response"].tolist()
+# train_texts = train_df["response"].tolist()
+# val_texts = valid_df["response"].tolist()
+# test_texts = test_df["response"].tolist()
+
+train_texts = train_df["prompt"].tolist()
+val_texts = valid_df["prompt"].tolist()
+test_texts = test_df["prompt"].tolist()
 
 # 4. Tokenize and build vocabulary ONLY on the training data
 print("Tokenizing training data...")
@@ -68,11 +76,13 @@ embeddings = load_pretrained_vectors(word2idx, "fastText/crawl-300d-2M.vec")
 embeddings = torch.tensor(embeddings)
 
 # 7. Create PyTorch DataLoaders using Chris Tran's function
-train_dataloader, val_dataloader = data_loader(
+train_dataloader, val_dataloader, test_dataloader = data_loader(
     train_inputs, # encoded 
     val_inputs, # encoded 
     train_labels, # classes encoded
     val_labels, # classes encoded
+    test_inputs,
+    test_labels,
     batch_size=50
 )
 
@@ -85,4 +95,35 @@ set_seed(42)
 '''What's interesting is whether model will do worse if no val-dataloader'''
 train(model, optimizer, train_dataloader, val_dataloader, epochs=10)
 
-evaluate(model, val_dataloader)
+val_loss, val_accuracy, val_f1 = evaluate(model, val_dataloader)
+test_loss, test_accuracy, test_f1 = evaluate(model, test_dataloader)
+
+print(f"Validation loss: {val_loss:.4f}")
+print(f"Validation accuracy: {val_accuracy:.2f}%")
+print(f"Validation F1 score: {val_f1:.4f}")
+print(f"Test loss: {test_loss:.4f}")
+print(f"Test accuracy: {test_accuracy:.2f}%")
+print(f"Test F1 score: {test_f1:.4f}")
+
+
+
+
+# # Save everything needed to recreate the model and preprocess future text.
+# checkpoint_path = Path("results/cnn_model.pt")
+# checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+# torch.save(
+#     {
+#         "model_state_dict": model.state_dict(),
+#         "optimizer_state_dict": optimizer.state_dict(),
+#         "word2idx": word2idx,
+#         "max_len": max_len,
+#         "label_mapping": label_mapping,
+#         "model_config": {
+#             "filter_sizes": [3, 4, 5],
+#             "num_filters": [100, 100, 100],
+#             "dropout": 0.5,
+#         },
+#     },
+#     checkpoint_path,
+# )
+# print(f"Saved CNN checkpoint to {checkpoint_path}")

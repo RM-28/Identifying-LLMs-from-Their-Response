@@ -1,0 +1,23 @@
+combined_team_rnn_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         335            326     346         347
+train       1631           1645    1644        1601
+val          342            337     318         360
+
+vocab size: 12152
+[combined_team_rnn_input] epoch  1  loss 1.3904  val_acc 0.2609  val_macroF1 0.2438  (16.1s)
+[combined_team_rnn_input] epoch  2  loss 1.3818  val_acc 0.2631  val_macroF1 0.2512  (16.2s)
+[combined_team_rnn_input] epoch  3  loss 1.3757  val_acc 0.2528  val_macroF1 0.2485  (16.2s)
+[combined_team_rnn_input] epoch  4  loss 1.3679  val_acc 0.2594  val_macroF1 0.2549  (13.9s)
+[combined_team_rnn_input] epoch  5  loss 1.3543  val_acc 0.2483  val_macroF1 0.2467  (15.5s)
+[combined_team_rnn_input] epoch  6  loss 1.3422  val_acc 0.2469  val_macroF1 0.2399  (13.1s)
+[combined_team_rnn_input] epoch  7  loss 1.3211  val_acc 0.2439  val_macroF1 0.2432  (13.4s)
+[combined_team_rnn_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2880 [0.267, 0.315]  macro-F1 0.2871 [0.266, 0.313]
+  claude-v1       P 0.279  R 0.269  F1 0.274  n=335
+  gpt-3.5-turbo   P 0.264  R 0.270  F1 0.267  n=326
+  palm-2          P 0.320  R 0.269  F1 0.292  n=346
+  vicuna-13b      P 0.292  R 0.343  F1 0.316  n=347
+saved results/seeds/seed2\combined_team_rnn_input.json and results/seeds/seed2\combined_team_rnn_input_confusion.png

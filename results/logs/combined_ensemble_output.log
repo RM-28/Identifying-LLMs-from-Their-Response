@@ -1,0 +1,31 @@
+combined_ensemble_output  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         336            343     362         337
+train       1626           1628    1591        1613
+val          346            337     355         358
+
+vocab size: 27072
+[combined_ensemble_output/cnn] epoch  1  loss 1.6911  val_acc 0.4971  val_macroF1 0.4486  (1.5s)
+[combined_ensemble_output/cnn] epoch  2  loss 1.2765  val_acc 0.5523  val_macroF1 0.5260  (0.7s)
+[combined_ensemble_output/cnn] epoch  3  loss 1.1255  val_acc 0.5544  val_macroF1 0.5289  (0.7s)
+[combined_ensemble_output/cnn] epoch  4  loss 1.0726  val_acc 0.6074  val_macroF1 0.6110  (0.7s)
+[combined_ensemble_output/cnn] epoch  5  loss 1.0238  val_acc 0.6468  val_macroF1 0.6455  (0.7s)
+[combined_ensemble_output/cnn] epoch  6  loss 0.9971  val_acc 0.6139  val_macroF1 0.5912  (0.7s)
+[combined_ensemble_output/cnn] epoch  7  loss 0.9622  val_acc 0.6332  val_macroF1 0.6212  (0.7s)
+[combined_ensemble_output/cnn] epoch  8  loss 0.9302  val_acc 0.6519  val_macroF1 0.6413  (0.7s)
+[combined_ensemble_output/cnn] early stop: no val macro-F1 gain for 3 epochs
+[combined_ensemble_output/rnn] epoch  1  loss 1.2575  val_acc 0.4663  val_macroF1 0.4694  (9.0s)
+[combined_ensemble_output/rnn] epoch  2  loss 1.1205  val_acc 0.4599  val_macroF1 0.4344  (8.6s)
+[combined_ensemble_output/rnn] epoch  3  loss 1.0420  val_acc 0.5201  val_macroF1 0.5165  (8.9s)
+[combined_ensemble_output/rnn] epoch  4  loss 0.9690  val_acc 0.5122  val_macroF1 0.4950  (8.5s)
+[combined_ensemble_output/rnn] epoch  5  loss 0.9147  val_acc 0.4979  val_macroF1 0.4640  (8.8s)
+[combined_ensemble_output/rnn] epoch  6  loss 0.8438  val_acc 0.5129  val_macroF1 0.4908  (8.7s)
+[combined_ensemble_output/rnn] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.6350  macro-F1 0.6334
+  claude-v1       P 0.864  R 0.812  F1 0.837  n=336
+  gpt-3.5-turbo   P 0.504  R 0.554  F1 0.528  n=343
+  palm-2          P 0.664  R 0.732  F1 0.696  n=362
+  vicuna-13b      P 0.514  R 0.436  F1 0.472  n=337
+saved results\combined_ensemble_output.json and results\combined_ensemble_output_confusion.png

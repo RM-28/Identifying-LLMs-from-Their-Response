@@ -1,0 +1,31 @@
+combined_cnnlstm_input  device=cuda
+model  claude-v1  gpt-3.5-turbo  palm-2  vicuna-13b
+split                                              
+test         327            333     323         368
+train       1645           1600    1661        1597
+val          336            375     324         343
+
+vocab size: 12281
+[combined_cnnlstm_input] epoch  1  loss 1.3891  val_acc 0.2351  val_macroF1 0.1891  (16.1s)
+[combined_cnnlstm_input] epoch  2  loss 1.3643  val_acc 0.2518  val_macroF1 0.2395  (20.1s)
+[combined_cnnlstm_input] epoch  3  loss 1.2817  val_acc 0.2504  val_macroF1 0.2427  (20.1s)
+[combined_cnnlstm_input] epoch  4  loss 1.0883  val_acc 0.2438  val_macroF1 0.2408  (19.7s)
+[combined_cnnlstm_input] epoch  5  loss 0.8889  val_acc 0.2395  val_macroF1 0.2372  (19.3s)
+[combined_cnnlstm_input] epoch  6  loss 0.7475  val_acc 0.2460  val_macroF1 0.2435  (17.4s)
+[combined_cnnlstm_input] epoch  7  loss 0.6390  val_acc 0.2460  val_macroF1 0.2459  (19.2s)
+[combined_cnnlstm_input] epoch  8  loss 0.5724  val_acc 0.2453  val_macroF1 0.2436  (18.8s)
+[combined_cnnlstm_input] epoch  9  loss 0.5295  val_acc 0.2496  val_macroF1 0.2488  (16.5s)
+[combined_cnnlstm_input] epoch 10  loss 0.4894  val_acc 0.2496  val_macroF1 0.2494  (19.5s)
+[combined_cnnlstm_input] epoch 11  loss 0.4557  val_acc 0.2431  val_macroF1 0.2416  (18.9s)
+[combined_cnnlstm_input] epoch 12  loss 0.4250  val_acc 0.2504  val_macroF1 0.2507  (17.3s)
+[combined_cnnlstm_input] epoch 13  loss 0.4051  val_acc 0.2402  val_macroF1 0.2405  (18.8s)
+[combined_cnnlstm_input] epoch 14  loss 0.3825  val_acc 0.2489  val_macroF1 0.2486  (19.9s)
+[combined_cnnlstm_input] epoch 15  loss 0.3684  val_acc 0.2409  val_macroF1 0.2405  (16.8s)
+[combined_cnnlstm_input] early stop: no val macro-F1 gain for 3 epochs
+
+TEST  acc 0.2561 [0.232, 0.279]  macro-F1 0.2541 [0.229, 0.277]
+  claude-v1       P 0.242  R 0.327  F1 0.278  n=327
+  gpt-3.5-turbo   P 0.249  R 0.186  F1 0.213  n=333
+  palm-2          P 0.276  R 0.279  F1 0.277  n=323
+  vicuna-13b      P 0.260  R 0.236  F1 0.248  n=368
+saved results/seeds/seed3\combined_cnnlstm_input.json and results/seeds/seed3\combined_cnnlstm_input_confusion.png

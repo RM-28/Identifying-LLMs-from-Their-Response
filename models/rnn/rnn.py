@@ -3,15 +3,19 @@ import torch.nn as nn
 
 class RNN(nn.Module):
     #initalize the model
-    def __init__(self, input_size, output_size, hidden_size = 128, dropout = 0.5, bidirectional = False):
+    def __init__(self, input_size, output_size, hidden_size = 128, dropout = 0.5, bidirectional = False, pretrained_embeddings = None, freeze_embeddings = False):
         super().__init__()
         #initialize the model parameters
         self.hidden_size = hidden_size
         self.bidirectional = bidirectional
         #embedding layer to convert input tokens to dense vectors
-        self.embedding = nn.Embedding(input_size, hidden_size)
+        if pretrained_embeddings is not None:
+            self.embedding = nn.Embedding.from_pretrained(pretrained_embeddings, freeze = freeze_embeddings, padding_idx = 0)
+        else:
+            self.embedding = nn.Embedding(input_size, hidden_size, padding_idx = 0)
         #bidirectional LSTM layer with dropout
-        self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True, bidirectional=bidirectional)
+        embed_dim = self.embedding.embedding_dim
+        self.lstm = nn.LSTM(embed_dim, hidden_size, batch_first=True, bidirectional=bidirectional)
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_size * (2 if bidirectional else 1), output_size)
 
@@ -31,9 +35,15 @@ class RNN(nn.Module):
 
 if __name__ == "__main__":
     #test a sample to see if model runs
+    
     text = torch.randint(0, 100, (32, 10))
     text_length = torch.tensor([10] * 32)
     for i in (False, True):
         model = RNN(input_size=100, hidden_size=128, output_size=4, dropout=0.5, bidirectional=i)
         output = model(text, text_length)
         print(f"Bidirectional = {i}, Output shape = {output.shape}")
+
+    #test pretrained embeddings
+    fake_vectors = torch.randn(100, 300)
+    model = RNN(input_size=100, output_size = 4, pretrained_embeddings = fake_vectors)
+    print("Pretrained, Output shape =", model(text, text_length).shape)
